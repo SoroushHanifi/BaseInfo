@@ -1,4 +1,5 @@
-﻿using Application.OptionPatternModel;
+﻿using Application.CQRS;
+using Application.OptionPatternModel;
 using Domain;
 using Infrastructure;
 using Infrastructure.Models;
@@ -37,6 +38,12 @@ namespace BaseInfo.Extensions
         public static void AddDbContextInternal(this IServiceCollection services)
         {
             services.AddDbContext<DarooDbContext>(option => { option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")); });
+        }
+
+
+        public static void AddMediatRInternal(this IServiceCollection services)
+        {
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateDepartmentCommandHandler).Assembly));
         }
 
 
@@ -179,6 +186,10 @@ namespace BaseInfo.Extensions
                     }
                 };
             });
+        }
+        public static void AddHttpContextAccessorInternal(this IServiceCollection services)
+        {
+            services.AddHttpContextAccessor();
         }
 
         public static void AddOptionPatternInternal(this IServiceCollection services)

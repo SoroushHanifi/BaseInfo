@@ -24,8 +24,10 @@ namespace Application.CQRS
         {
             var department = new Department
             {
+                Id = Guid.NewGuid(),
+                CreateUserId = 
                 Name = request.Name,
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTime.UtcNow,
             };
 
             _context.Departments.Add(department);
@@ -36,7 +38,7 @@ namespace Application.CQRS
     }
 
     // Update Command
-    public record UpdateDepartmentCommand(int Id, string Name) : IRequest<bool>;
+    public record UpdateDepartmentCommand(Guid Id, string Name) : IRequest<bool>;
 
     public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand, bool>
     {
@@ -55,7 +57,6 @@ namespace Application.CQRS
                 return false;
 
             department.Name = request.Name;
-            department.ModifyDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(cancellationToken);
             return true;
@@ -63,7 +64,7 @@ namespace Application.CQRS
     }
 
     // Delete Command
-    public record DeleteDepartmentCommand(int Id) : IRequest<bool>;
+    public record DeleteDepartmentCommand(Guid Id) : IRequest<bool>;
 
     public class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand, bool>
     {
@@ -78,12 +79,16 @@ namespace Application.CQRS
         {
             var department = await _context.Departments.FindAsync(request.Id, cancellationToken);
 
-            if (department == null)
+            if (department == null || department.IsDelete)
                 return false;
 
-            _context.Departments.Remove(department);
+            department.IsDelete = true;
+            department.ModifyDate = DateTime.UtcNow; // اضافه کردن ModifyDate
+
+            _context.Departments.Update(department);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
     }
+
 }

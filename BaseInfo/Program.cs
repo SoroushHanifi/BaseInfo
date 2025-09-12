@@ -11,9 +11,12 @@ namespace BaseInfo
 
             // Add services to the container.
             ServiceExtensions.Init(builder.Configuration);
+            builder.Services.AddDbContextInternal();
+            builder.Services.AddMediatRInternal();
             builder.Services.AddControllersInternal();
             builder.Services.AddAuthorizationInternal();
             builder.Services.AddApiVersioningInternal();
+            builder.Services.AddHttpContextAccessorInternal();
             builder.Services.AddSwaggerInternal();
 
             var app = builder.Build();
