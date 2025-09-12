@@ -1,0 +1,648 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>کاربر به کیس دسترسی ندارد</value>
+  </data>
+  <data name="AccessDeniedToPostInqueryService" xml:space="preserve">
+    <value>سرویس پست در دسترس نیست </value>
+  </data>
+  <data name="AccessDeniedToPostTokenService" xml:space="preserve">
+    <value>احراز هویت سرویس توکن پست با خطا مواجه شد</value>
+  </data>
+  <data name="AccessDeniedToService" xml:space="preserve">
+    <value>عدم دسترسی به سرویس مورد نظر </value>
+  </data>
+  <data name="AnErrorGettingInformation" xml:space="preserve">
+    <value>خطایی در دریافت اطلاعات رخ داده است</value>
+  </data>
+  <data name="AnErrorHasOccurred" xml:space="preserve">
+    <value>خطایی رخ داده است</value>
+  </data>
+  <data name="ApplicationNameIsRequired" xml:space="preserve">
+    <value>نام اپلیکیشن الزامی است</value>
+  </data>
+  <data name="ApprovallicenseNotExist" xml:space="preserve">
+    <value>مجوز موافقت اصولی وجود ندارد</value>
+  </data>
+  <data name="AthleteInfoInquiry" xml:space="preserve">
+    <value>استعلام سوابق ورزشکاران</value>
+  </data>
+  <data name="BankAccountWasNotFound" xml:space="preserve">
+    <value>حساب بانکی یافت نشد</value>
+  </data>
+  <data name="BankWasNotFound" xml:space="preserve">
+    <value>بانک مورد نظر یافت نشد</value>
+  </data>
+  <data name="BimehVarzeshiInquiry" xml:space="preserve">
+    <value>استعلام بیمه ورزشی</value>
+  </data>
+  <data name="BusinessInfoAddressIsRequired" xml:space="preserve">
+    <value>آدرس کسب و کار یا موقعیت جغرافیایی کسب و کار با فرمت Latitude,Longitude الزامی میباشد</value>
+  </data>
+  <data name="BusinessInfoIsRequired" xml:space="preserve">
+    <value>وارد کردن اطلاعات کسب و کار الزامی میباشد</value>
+  </data>
+  <data name="CancelLicenseIssuance" xml:space="preserve">
+    <value>انصراف از صدور مجوز</value>
+  </data>
+  <data name="CaseNotFound" xml:space="preserve">
+    <value>کیس یافت نشد</value>
+  </data>
+  <data name="CheckPersonalInfo" xml:space="preserve">
+    <value>ثبت احوال</value>
+  </data>
+  <data name="CheckPersonalInfoInquiry" xml:space="preserve">
+    <value>استعلام ثبت احوال</value>
+  </data>
+  <data name="ClientSystemWasNotFound" xml:space="preserve">
+    <value>سامانه مورد نظر یافت نشد</value>
+  </data>
+  <data name="CoachCertificationInfoInquiry" xml:space="preserve">
+    <value>استعلام سوابق مربی گری</value>
+  </data>
+  <data name="CompleteUserInformation" xml:space="preserve">
+    <value>اطلاعات کاربری را تکمیل کنید</value>
+  </data>
+  <data name="Contractor" xml:space="preserve">
+    <value>پیمانکار</value>
+  </data>
+  <data name="ContractorLinksTypeDuplicate" xml:space="preserve">
+    <value>نوع لینک وارد شده قبلا ثبت شده است</value>
+  </data>
+  <data name="ContractorNameDuplicate" xml:space="preserve">
+    <value>نام پیمانکار تکراری است</value>
+  </data>
+  <data name="ContractorsNotFound" xml:space="preserve">
+    <value>پیمانکار مورد نظر یافت نشد</value>
+  </data>
+  <data name="CouldNotFindFilePath" xml:space="preserve">
+    <value>مسیر فایل یافت نشد</value>
+  </data>
+  <data name="CountOfMethodsCallInLastDay" xml:space="preserve">
+    <value>تعداد فراخوانی متد ها در روز اخیر</value>
+  </data>
+  <data name="DataItemsLogin" xml:space="preserve">
+    <value>لاگین سرویس اقلام داده</value>
+  </data>
+  <data name="DataNotFound" xml:space="preserve">
+    <value>داده ای یافت نشد</value>
+  </data>
+  <data name="DateNotValid" xml:space="preserve">
+    <value>تاریخ صحیح وارد نشده است</value>
+  </data>
+  <data name="Degree" xml:space="preserve">
+    <value>مدرک</value>
+  </data>
+  <data name="DescIsRequired" xml:space="preserve">
+    <value>توضیحات اجباری است</value>
+  </data>
+  <data name="DoNotAccessYourProviderCode" xml:space="preserve">
+    <value>کد اختصاصی ارسال شده به این سرویس دسترسی ندارد</value>
+  </data>
+  <data name="DuplicateBank" xml:space="preserve">
+    <value>بانک وارد شده تکراری است</value>
+  </data>
+  <data name="DuplicateBankAccount" xml:space="preserve">
+    <value>حساب بانکی تکراری است</value>
+  </data>
+  <data name="DuplicateClientSystem" xml:space="preserve">
+    <value>سامانه وارد شده تکراری است</value>
+  </data>
+  <data name="DuplicateEntryEn" xml:space="preserve">
+    <value>duplicate entry</value>
+  </data>
+  <data name="EnterTitle" xml:space="preserve">
+    <value>عنوان را وارد کنید</value>
+  </data>
+  <data name="Error401" xml:space="preserve">
+    <value>احراز هویت با شکست مواجه شد</value>
+  </data>
+  <data name="ErrorInquirySabteAhval" xml:space="preserve">
+    <value>سرویس استعلام ثبت احوال خطا دارد، لطفا از درگاه دولت من اقدام کنید</value>
+  </data>
+  <data name="ErrorService" xml:space="preserve">
+    <value>سرویس مورد نظر قطع است دقایقی دیگر تلاش کنید</value>
+  </data>
+  <data name="ErrorShahkarService" xml:space="preserve">
+    <value>سرویس استعلام شاهکار خطا دارد، لطفا از درگاه دولت من اقدام کنید</value>
+  </data>
+  <data name="ExternalServiceOutOfResponse" xml:space="preserve">
+    <value>سرویس {0} در دسترس نیست لطفا دقایقی دیگر تلاش نمایید</value>
+  </data>
+  <data name="ExtraValueIsRequired" xml:space="preserve">
+    <value>داده های وارد شده تکمیل نمی باشد</value>
+  </data>
+  <data name="FailedLicenseResponse" xml:space="preserve">
+    <value>درخواست مورد نظر صحیح نمیباشد،لطفا دوباره از درگاه ملی در خواست دهید</value>
+  </data>
+  <data name="FailureToReceiveResponseFromBankPortal" xml:space="preserve">
+    <value>عدم دریافت پاسخ از درگاه بانک، مجددا تلاش کنید</value>
+  </data>
+  <data name="Federation" xml:space="preserve">
+    <value>فدراسیون</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>رشته</value>
+  </data>
+  <data name="FileIDRequired" xml:space="preserve">
+    <value>آیدی فایل الزامی است</value>
+  </data>
+  <data name="FileIsRequired" xml:space="preserve">
+    <value>فایل الزامی است</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>فایل یافت نشد</value>
+  </data>
+  <data name="FromNationalCodeIsRequired" xml:space="preserve">
+    <value>کدملی مبدا الزامی است</value>
+  </data>
+  <data name="G4bToken" xml:space="preserve">
+    <value>احراز هویت G4b</value>
+  </data>
+  <data name="GetConfirmServiceId" xml:space="preserve">
+    <value>استعلام تطبیق کد ملی و شماره همراه</value>
+  </data>
+  <data name="GetCoronaDisease" xml:space="preserve">
+    <value>استعلام سرویس کرونا</value>
+  </data>
+  <data name="GetEducationDegreeByNationalCode" xml:space="preserve">
+    <value>استعلام سوابق تحصیلی</value>
+  </data>
+  <data name="GetInquirySabteAhval" xml:space="preserve">
+    <value>استعلام از ثبت احوال</value>
+  </data>
+  <data name="GetLatestG4bStatus" xml:space="preserve">
+    <value>استعلام وضعیت از G4B</value>
+  </data>
+  <data name="GetLatestStatus" xml:space="preserve">
+    <value>استعلام اخرین وضعیت</value>
+  </data>
+  <data name="GetLatestStatusOfRequestedLicense" xml:space="preserve">
+    <value>آخرین وضعیت درخواست مجوز</value>
+  </data>
+  <data name="GetLatestStatusOfRequestedOldLicense" xml:space="preserve">
+    <value>آخرین وضعیت درخواست مجوز یکتا</value>
+  </data>
+  <data name="GetPoliceClearanceCertificate" xml:space="preserve">
+    <value>استعلام سوءپیشینه</value>
+  </data>
+  <data name="GetSMSDeliver" xml:space="preserve">
+    <value>وضعیت پیامک</value>
+  </data>
+  <data name="GetSMSDeliverBulk" xml:space="preserve">
+    <value>وضعیت پیامک بالک</value>
+  </data>
+  <data name="GetSMSReceiveList" xml:space="preserve">
+    <value>لیست پیامک های دریافتی</value>
+  </data>
+  <data name="GetUserInfo" xml:space="preserve">
+    <value>دریافت اطلاعات کاربری</value>
+  </data>
+  <data name="GivePortalAccessToUser" xml:space="preserve">
+    <value>دسترسی کاربر به پرتال</value>
+  </data>
+  <data name="GovToken" xml:space="preserve">
+    <value>احراز هویت درگاه ملی</value>
+  </data>
+  <data name="HeSheIsMartyr" xml:space="preserve">
+    <value>این فرد به درجه شهادت نائل شده است</value>
+  </data>
+  <data name="IncoorectDocumentRecipientInfo" xml:space="preserve">
+    <value>گیرنده سند به درستی وارد نشده است</value>
+  </data>
+  <data name="IncoorectRecipientsInfo" xml:space="preserve">
+    <value>اطلاعات گیرندگان به درستی وارد نشده است</value>
+  </data>
+  <data name="IncorrectDeadlineForSendingResponse" xml:space="preserve">
+    <value>مهلت ارسال پاسخ سند درست وارد نشده است</value>
+  </data>
+  <data name="IncorrectImageType" xml:space="preserve">
+    <value>عکس موسس باید از نوع png یا jpg باشد</value>
+  </data>
+  <data name="IncorrectLicenseType" xml:space="preserve">
+    <value>کاربر گرامی نوع مجوز درخواستی شما معتبر نمیباشد</value>
+  </data>
+  <data name="IncorrectNationalCodeOrBirthDate" xml:space="preserve">
+    <value>کد ملی یا تاریخ تولد اشتباه است</value>
+  </data>
+  <data name="IncorrectProviderCode" xml:space="preserve">
+    <value>کد اختصاصی اشتباه است</value>
+  </data>
+  <data name="IncorrectRequiredInfo" xml:space="preserve">
+    <value>اطلاعات ضروری وارد نشده است</value>
+  </data>
+  <data name="InputBirthDate" xml:space="preserve">
+    <value>تاریخ تولد را وارد کنید</value>
+  </data>
+  <data name="InputNationalCode" xml:space="preserve">
+    <value>کد ملی را وارد کنید</value>
+  </data>
+  <data name="InputParamsErrors" xml:space="preserve">
+    <value>پارامتر های دریافتی دچار مشکل است لطفا با پشتیبانی تماس بگیرید</value>
+  </data>
+  <data name="InputPhoneNumber" xml:space="preserve">
+    <value>شماره همراه را وارد کنید</value>
+  </data>
+  <data name="InvalidExtensions" xml:space="preserve">
+    <value>پسوند فایل نامعتبر است</value>
+  </data>
+  <data name="InvalidInput" xml:space="preserve">
+    <value>ورودی نامعتبر است</value>
+  </data>
+  <data name="InvalidInputParams" xml:space="preserve">
+    <value>پارامترهای ورودی صحیح نمی باشد</value>
+  </data>
+  <data name="InvalidLatestStatusLink" xml:space="preserve">
+    <value>لینک آخرین وضعیت درگاه ملی معتبر نمی باشد</value>
+  </data>
+  <data name="InvalidNationalCode" xml:space="preserve">
+    <value>کد ملی نامعتبر است</value>
+  </data>
+  <data name="InvalidPaymentAmount" xml:space="preserve">
+    <value>مبلغ پرداخت صحیح نمی باشد</value>
+  </data>
+  <data name="Issued" xml:space="preserve">
+    <value>صدور</value>
+  </data>
+  <data name="IssueDateIsRequired" xml:space="preserve">
+    <value>تاریخ صدور اجباری است</value>
+  </data>
+  <data name="LicenseCodeAddedOtherContractor" xml:space="preserve">
+    <value>کد مجوز مورد نظر برای پیمانکار دیگری ثبت شده است</value>
+  </data>
+  <data name="LicenseCodeDuplicate" xml:space="preserve">
+    <value>کد مجوز تکراری است</value>
+  </data>
+  <data name="LicenseCodeDuplicateInContractor" xml:space="preserve">
+    <value>کدمجوز مورد نظر قبلا ثبت شده است</value>
+  </data>
+  <data name="LicenseCodeIsRequired" xml:space="preserve">
+    <value>کد مجوز را وارد کنید</value>
+  </data>
+  <data name="LicenseCodeNotFound" xml:space="preserve">
+    <value>مجوز مورد نظر یافت نشد</value>
+  </data>
+  <data name="LicenseHasAlreadyBeenRevoked" xml:space="preserve">
+    <value>مجوز کاربر مورد نظر قبلا ابطال شده است</value>
+  </data>
+  <data name="LicenseNotFound" xml:space="preserve">
+    <value>مجوز یافت نشد</value>
+  </data>
+  <data name="LicenseTypeIsNotValid" xml:space="preserve">
+    <value>نوع مجوز نامعتبر است</value>
+  </data>
+  <data name="LinkInvalid" xml:space="preserve">
+    <value>لینک وارد شده صحیح نمی باشد</value>
+  </data>
+  <data name="ListOfMethodsThatHaveTheMostNumberOfCalls" xml:space="preserve">
+    <value>لیست متدهایی که بیشترین تعداد فراخوانی داشتن</value>
+  </data>
+  <data name="LogNotFound" xml:space="preserve">
+    <value>لاگ مورد نظر یافت نشد</value>
+  </data>
+  <data name="Magfa" xml:space="preserve">
+    <value>مگفا</value>
+  </data>
+  <data name="Man" xml:space="preserve">
+    <value>مرد</value>
+  </data>
+  <data name="MedalInfoInquiry" xml:space="preserve">
+    <value>استعلام قهرمانی ورزشکاران</value>
+  </data>
+  <data name="MessageIsRequired" xml:space="preserve">
+    <value>متن پیامک الزامی است</value>
+  </data>
+  <data name="MethodsLastValuesCreateDate" xml:space="preserve">
+    <value>تاریخ و ساعت اخرین لاگ متدها</value>
+  </data>
+  <data name="MethodsReportByStatusCodes" xml:space="preserve">
+    <value>گزارش کد وضعیت متدها</value>
+  </data>
+  <data name="MismatchNationalCodeWithPhoneNumber" xml:space="preserve">
+    <value>این کد ملی به این شماره همراه تعلق ندارد</value>
+  </data>
+  <data name="MoreOneMonthsConsentRequestLicense" xml:space="preserve">
+    <value>از مجوز موافقت اصولی شما بیشتر از یک ماه باقی مانده</value>
+  </data>
+  <data name="MoreTwoMonthsPersonalVerifyingLicense" xml:space="preserve">
+    <value>از مجوز تشخیص صلاحیت شما بیشتر از دو ماه باقی مانده</value>
+  </data>
+  <data name="NameIsRequired" xml:space="preserve">
+    <value>نام را وارد کنید</value>
+  </data>
+  <data name="NoUniversityFound" xml:space="preserve">
+    <value>دانشگاهی یافت نشد</value>
+  </data>
+  <data name="OperationLicenseNotExist" xml:space="preserve">
+    <value>مجوز بهره برداری وجود ندارد</value>
+  </data>
+  <data name="PaymentIsStatus" xml:space="preserve">
+    <value>پرداخت در وضعیت {0} است</value>
+  </data>
+  <data name="PaymentNotFound" xml:space="preserve">
+    <value>پرداخت مورد نظر یافت نشد</value>
+  </data>
+  <data name="PersonalInfoInquiry" xml:space="preserve">
+    <value>استعلام اطلاعات عمومی</value>
+  </data>
+  <data name="PersonIsDead" xml:space="preserve">
+    <value>شخص مورد نظر فوت کرده است</value>
+  </data>
+  <data name="PharmacyLocationNotFounde" xml:space="preserve">
+    <value>آدرس داروخانه یافت نشد</value>
+  </data>
+  <data name="PhoneNumberIsIncorrect" xml:space="preserve">
+    <value>شماره تماس نادرست است</value>
+  </data>
+  <data name="ProcessDeleteFileError" xml:space="preserve">
+    <value>مراحل حذف فایل با خطا مواجه شد</value>
+  </data>
+  <data name="ProcessNotFoundeInUserType" xml:space="preserve">
+    <value>فرایند مورد نظر در نوع کاربری شما یافت نشد</value>
+  </data>
+  <data name="ProcessUploadFileError" xml:space="preserve">
+    <value>مراحل آپلود فایل با خطا مواجه شد</value>
+  </data>
+  <data name="RadNumberIsRequired" xml:space="preserve">
+    <value>کدرهگیری الزامی است</value>
+  </data>
+  <data name="ReceiverNumbersIsRequired" xml:space="preserve">
+    <value>شماره دریافت کننده پیامک الزامی است</value>
+  </data>
+  <data name="RefereeCertificationInfoInquiry" xml:space="preserve">
+    <value>استعلام سوابق داوری</value>
+  </data>
+  <data name="Rejected24HoursLicense" xml:space="preserve">
+    <value>مجوز مورد نظر به دلیل 24 ساعت رد شده است</value>
+  </data>
+  <data name="RejectReasonsIsRequired" xml:space="preserve">
+    <value>وارد کردن دلایل عدم تایید الزامی میباشد</value>
+  </data>
+  <data name="ReloadPage" xml:space="preserve">
+    <value>لطفا صفحه را رفرش کنید</value>
+  </data>
+  <data name="RenewedThisLicense" xml:space="preserve">
+    <value>این مجوز قبلا تمدید شده است</value>
+  </data>
+  <data name="RequestBodyIsEmptyEn" xml:space="preserve">
+    <value>Request body is empty</value>
+  </data>
+  <data name="RequestNumberDocumentNotFound" xml:space="preserve">
+    <value>شماره درخواست یافت نشد</value>
+  </data>
+  <data name="RequestNumberIsRequired" xml:space="preserve">
+    <value>شماره درخواست الزامی است</value>
+  </data>
+  <data name="RequiredNationalCode" xml:space="preserve">
+    <value>کد ملی الزامی است</value>
+  </data>
+  <data name="RequiredNationalCodeOrG4bRequestNumber" xml:space="preserve">
+    <value>شناسه مجوز یا کدملی الزامی است</value>
+  </data>
+  <data name="Revival" xml:space="preserve">
+    <value>تمدید</value>
+  </data>
+  <data name="SanadIsIssued" xml:space="preserve">
+    <value>این سند صدوری میباشد</value>
+  </data>
+  <data name="SanadIsMarked" xml:space="preserve">
+    <value>با دردست داشتن اصل شناسنامه به اداره ثبت احوال محل سکونت مراجعه نمایید</value>
+  </data>
+  <data name="ScoringLicenseNotFound" xml:space="preserve">
+    <value>مجوز امتیاز گیری یافت نشد</value>
+  </data>
+  <data name="SendLetter" xml:space="preserve">
+    <value>ارسال سند</value>
+  </data>
+  <data name="SendSurveyMessage" xml:space="preserve">
+    <value>ارسال پيامک نظرسنجی</value>
+  </data>
+  <data name="ServiceCallIsFailed" xml:space="preserve">
+    <value>فراخوانی سرویس با خطا مواجه شد، دوباره تلاش کنید</value>
+  </data>
+  <data name="SmsSend" xml:space="preserve">
+    <value>ارسال پیامک</value>
+  </data>
+  <data name="SportFieldsNotFound" xml:space="preserve">
+    <value>رشته های مجوز یافت نشد</value>
+  </data>
+  <data name="StartingProcessOnlyResponsible" xml:space="preserve">
+    <value>امکان شروع فرایند فقط توسط مسئول {0} امکان پذیر است</value>
+  </data>
+  <data name="SubmitLicenseIssuanceFinalResult" xml:space="preserve">
+    <value>ثبت نتیجه نهایی صدور مجوز</value>
+  </data>
+  <data name="SuccessRequestMessage" xml:space="preserve">
+    <value>درخواست با موفقیت ثبت شد</value>
+  </data>
+  <data name="SuspendLicense" xml:space="preserve">
+    <value>تعلیق مجوز صادر شده توسط درگاه تخصصی</value>
+  </data>
+  <data name="TheFileSizeCannotBeExceeded" xml:space="preserve">
+    <value>سایز فایل نمیتواند بیشتر از {0} باشد</value>
+  </data>
+  <data name="TheFileTypeIsNotCorrect" xml:space="preserve">
+    <value>تایپ فایل باید از نوع {0} باشد</value>
+  </data>
+  <data name="TheNumberOfClubIssuanceRequests" xml:space="preserve">
+    <value>تعداد درخواست های صدور باشگاه های ورزشی</value>
+  </data>
+  <data name="TheNumberOfMissed24" xml:space="preserve">
+    <value>تعداد کنسلی های 24 ساعته اعلام نشده</value>
+  </data>
+  <data name="TheNumberOfUniqueRequests" xml:space="preserve">
+    <value>تعداد درخواست های یکتا</value>
+  </data>
+  <data name="TheNumberOfUnsuccessfulCallsSendApplicantInfo" xml:space="preserve">
+    <value>تعداد فراخوانی های ناموفق ارسال اطلاعات متقاضی</value>
+  </data>
+  <data name="TheNumberOfWithLandRequests" xml:space="preserve">
+    <value>تعداد درخواست های با زمین</value>
+  </data>
+  <data name="TheNumberOfWithoutLandRequests" xml:space="preserve">
+    <value>تعداد درخواست های بدون زمین</value>
+  </data>
+  <data name="TheReminderHasBeenStoredSuccessfullyEn" xml:space="preserve">
+    <value>Reminder has been stored successfully</value>
+  </data>
+  <data name="TheRequestHasBeenStoredSuccessfullyEn" xml:space="preserve">
+    <value>The request has been stored successfully</value>
+  </data>
+  <data name="ThisItemAlreadyIsPaied" xml:space="preserve">
+    <value>سند مورد نظر پرداخت شده است</value>
+  </data>
+  <data name="TimeoutOccured" xml:space="preserve">
+    <value>زمان ارسال یا دریافت اطلاعات بیش از حد طولانی شده است</value>
+  </data>
+  <data name="ToNationalCodeIsRequired" xml:space="preserve">
+    <value>کدملی مقصد الزامی است</value>
+  </data>
+  <data name="Unique" xml:space="preserve">
+    <value>یکتا</value>
+  </data>
+  <data name="UniqueIdProcessResult" xml:space="preserve">
+    <value>ثبت نتیجه نهایی شناسه یکتا</value>
+  </data>
+  <data name="UnSuccessInquirySabteAhval" xml:space="preserve">
+    <value>استعلام از ثبت احوال موفقیت آمیز نبود</value>
+  </data>
+  <data name="UnSuspendLicense" xml:space="preserve">
+    <value>رفع تعلیق مجوز تعلیق شده توسط درگاه تخصصی</value>
+  </data>
+  <data name="UserHasNoValidLicense" xml:space="preserve">
+    <value>شناسه وارد شده دارای مجوز معتبر نمی باشد</value>
+  </data>
+  <data name="UserHasOpenProcess" xml:space="preserve">
+    <value>کاربر دارای فرایند باز می باشد</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>کاربر مورد نظر یافت نشد</value>
+  </data>
+  <data name="VezaratToken" xml:space="preserve">
+    <value>احراز هویت وزارت</value>
+  </data>
+  <data name="YouDoNotHaveAccessToLicense" xml:space="preserve">
+    <value>به مجوز دسترسی ندارید</value>
+  </data>
+  <data name="YouDoNotHaveConstRequestLicense" xml:space="preserve">
+    <value>کاربر مورد نظر دارای مجوز موافقت اصولی نیست</value>
+  </data>
+  <data name="YouDoNotHaveGroupOperationLicense" xml:space="preserve">
+    <value>شما دارای مجوز بهره برداری گروهی نمی باشید</value>
+  </data>
+  <data name="YouDoNotHaveOperationLicenseOfAssociations" xml:space="preserve">
+    <value>شما دارای مجوز بهره برداری انجمن نمی باشید</value>
+  </data>
+  <data name="YouDoNotHaveOperationLicenseOfHospital" xml:space="preserve">
+    <value>شما دارای مجوز بهره برداری بیمارستان نمی باشید</value>
+  </data>
+  <data name="YouDoNotHavePersonalOperationLicense" xml:space="preserve">
+    <value>شما دارای مجوز بهره برداری شخصی نمی باشید</value>
+  </data>
+  <data name="YouDoNotHavePersonalVerifyingLicense" xml:space="preserve">
+    <value>شما دارای مجوز تشخیص صلاحیت نمی باشید</value>
+  </data>
+  <data name="YouHaveLicense" xml:space="preserve">
+    <value>شما دارای مجوز مورد نظر می باشید</value>
+  </data>
+  <data name="YouHavePersonalVerifyingLicense" xml:space="preserve">
+    <value>شما دارای مجوز تشخیص صلاحیت می باشید</value>
+  </data>
+</root>
