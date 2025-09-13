@@ -43,7 +43,8 @@ namespace Application.CQRS
             {
                 CreateUserId = result.Data.NationalCode,
                 Name = request.Name,
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTime.Now,
+                ModifyDate = DateTime.Now
             };
 
             _context.Departments.Add(department);
