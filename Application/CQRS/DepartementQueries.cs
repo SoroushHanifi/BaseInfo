@@ -13,7 +13,7 @@ namespace Application.CQRS
     // ===== DTOs =====
     public class DepartmentDto
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public Guid CreateUserId { get; set; }
         public DateTime CreateDate { get; set; }
@@ -49,7 +49,7 @@ namespace Application.CQRS
     }
 
     // ===== GetById Query =====
-    public record GetDepartmentByIdQuery(Guid Id) : IRequest<DepartmentDto?>;
+    public record GetDepartmentByIdQuery(int Id) : IRequest<DepartmentDto?>;
 
     public class GetDepartmentByIdQueryHandler : IRequestHandler<GetDepartmentByIdQuery, DepartmentDto?>
     {

@@ -9,7 +9,7 @@ namespace BaseInfo.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Authentication/Authorization طبق تنظیمات پروژه
+    [Authorize]
     public class DepartmentsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -37,7 +37,7 @@ namespace BaseInfo.Controllers
         /// <param name="id">شناسه اداره کل</param>
         /// <returns>اطلاعات اداره کل</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<DepartmentDto>> GetById(Guid id)
+        public async Task<ActionResult<DepartmentDto>> GetById(int id)
         {
             var query = new GetDepartmentByIdQuery(id);
             var result = await _mediator.Send(query);
@@ -66,7 +66,7 @@ namespace BaseInfo.Controllers
         /// <param name="request">اطلاعات اداره کل</param>
         /// <returns>شناسه اداره کل ایجاد شده</returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> Create([FromBody] CreateDepartmentRequest request)
+        public async Task<ActionResult<int>> Create([FromBody] CreateDepartmentRequest request)
         {
             var command = new CreateDepartmentCommand(request.Name);
             var departmentId = await _mediator.Send(command);
@@ -85,7 +85,7 @@ namespace BaseInfo.Controllers
         /// <param name="request">اطلاعات جدید</param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] UpdateDepartmentRequest request)
+        public async Task<ActionResult> Update(int id, [FromBody] UpdateDepartmentRequest request)
         {
             var command = new UpdateDepartmentCommand(id, request.Name);
             var result = await _mediator.Send(command);
@@ -102,7 +102,7 @@ namespace BaseInfo.Controllers
         /// <param name="id">شناسه اداره کل</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(Guid id)
+        public async Task<ActionResult> Delete(int id)
         {
             var command = new DeleteDepartmentCommand(id);
             var result = await _mediator.Send(command);

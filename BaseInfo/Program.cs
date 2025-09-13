@@ -1,5 +1,10 @@
 ﻿
+using System.Diagnostics;
+using Asp.Versioning;
 using BaseInfo.Extensions;
+using Refit;
+using Serilog;
+
 
 namespace BaseInfo
 {
@@ -7,37 +12,43 @@ namespace BaseInfo
     {
         public static void Main(string[] args)
         {
+            // Attach debugger when run from cli: dotnet run command
+            if (args.Contains("--AttachDebugger") || args.Contains("AttachDebugger") || args.Contains("-- AttachDebugger"))
+                Debugger.Launch();
+
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            ServiceExtensions.Init(builder.Configuration);
-
+            CreateLogging(builder);
             var services = builder.Services;
-            builder.Services.InjectedClasses();
-            builder.Services.AddControllersInternal();
-            builder.Services.AddAuthorizationInternal();
-            builder.Services.AddAuthentication();
-            builder.Services.AddApiVersioningInternal();
-            builder.Services.AddSwaggerInternal();
+            
 
+            ServiceExtensions.Init(builder.Configuration);
+            services.InjectedClasses();
+            services.AddRefitInternal();
+            services.AddControllersInternal();
+            services.AddAuthorizationInternal();
+            services.AddApiVersioningInternal();
+            services.AddSwaggerInternal();
 
             var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
+            app.UseStaticFiles();
+            app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
-
-
-            app.MapControllers();
+            app.UseSwaggerInternal(builder.Environment);
+            app.UseEndpointsInternal(builder.Environment);
 
             app.Run();
+        }
+
+        public static void CreateLogging(WebApplicationBuilder builder)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .WriteTo.File(
+                     path: $"{builder.Environment.ContentRootPath}/LogFiles/log.txt",
+                     fileSizeLimitBytes: 5_000_000,
+                     rollingInterval: RollingInterval.Day
+                ).CreateLogger();
         }
     }
 }

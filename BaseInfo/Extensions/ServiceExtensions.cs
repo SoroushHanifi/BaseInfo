@@ -1,6 +1,7 @@
 ﻿using Application.CQRS;
 using Application.Infra;
 using Application.OptionPatternModel;
+using Application.Refits;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Domain;
@@ -8,8 +9,6 @@ using Infrastructure;
 using Infrastructure.Models;
 using Infrastructure.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,6 +16,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Security.Claims;
+using Refit;
 
 
 namespace BaseInfo.Extensions
@@ -67,10 +67,10 @@ namespace BaseInfo.Extensions
                 typeof(GetAllDepartmentsQuery)
             };
 
-            //services.AddScoped<CreateDepartmentCommand>();
-            //types.Add(typeof(CreateDepartmentCommand));
+            services.AddScoped<CreateDepartmentCommandHandler>();
+            types.Add(typeof(CreateDepartmentCommandHandler));
 
-           
+
             //else if (env.IsEnvironment(ConstantValues.Organizations.Kanoon) || env.IsEnvironment(ConstantValues.Organizations.Moshavere))
             //{
             //    types.Add(typeof(CreateCaseEstekhdamHelper));
@@ -125,24 +125,19 @@ namespace BaseInfo.Extensions
             });
             
         }
+        public static void AddRefitInternal(this IServiceCollection services)
+        {
+            services.AddRefitClient<ISSOClient>()
+                .ConfigureHttpClient(p => p.BaseAddress = new Uri(OptionsData.Urls.SSO));
+
+        }
 
         public static void AddSwaggerInternal(this IServiceCollection services)
         {
             services.AddSwaggerGen(options =>
             {
                 options.EnableAnnotations();
-                using (var serviceProvider = services.BuildServiceProvider())
-                {
-                    var provider = serviceProvider.GetRequiredService<IApiVersionDescriptionProvider>();
-                    foreach (var description in provider.ApiVersionDescriptions)
-                    {
-                        options.SwaggerDoc(description.GroupName, new OpenApiInfo()
-                        {
-                            Title = $"{typeof(Program).Assembly.GetCustomAttribute<AssemblyProductAttribute>().Product} {description.ApiVersion}",
-                            Version = description.ApiVersion.ToString()
-                        });
-                    }
-                }
+               
 
                 options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
                 {
@@ -218,17 +213,17 @@ namespace BaseInfo.Extensions
                             context.Fail(Messages.Error401);
 
                         return Task.CompletedTask;
-                    },
-                    OnChallenge = context =>
-                    {
-                        if (context.AuthenticateFailure != null)
-                        {
-                            Console.WriteLine(context.ErrorDescription);
-                            throw new Exception(Messages.Error401);
-                        }
-
-                        throw new Exception(Messages.Error401);
                     }
+                    //OnChallenge = context =>
+                    //{
+                    //    if (context.AuthenticateFailure != null)
+                    //    {
+                    //        Console.WriteLine(context.ErrorDescription);
+                    //        throw new Exception(Messages.Error401);
+                    //    }
+
+                    //    throw new Exception(Messages.Error401);
+                    //}
                 };
             });
         }

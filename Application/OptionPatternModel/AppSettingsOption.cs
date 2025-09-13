@@ -10,6 +10,8 @@ namespace Application.OptionPatternModel
     {
         public string AllowedOrigins { get; set; }
         public SettingsOption Settings { get; set; }
+        public UrlsOption Urls { get; set; }
+
     }
 
     public class RedisOption
@@ -84,4 +86,8 @@ namespace Application.OptionPatternModel
         public bool RequireHttpsMetadata { get; set; }
         public string Audience { get; set; }
     }
+
+   
+
+    
 }
