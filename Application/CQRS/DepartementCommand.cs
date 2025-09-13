@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Daroo;
 using Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,12 @@ namespace Application.CQRS
     public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, Guid>
     {
         private readonly DarooDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CreateDepartmentCommandHandler(DarooDbContext context)
+        public CreateDepartmentCommandHandler(DarooDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Guid> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
@@ -25,7 +28,7 @@ namespace Application.CQRS
             var department = new Department
             {
                 Id = Guid.NewGuid(),
-                CreateUserId = 
+                CreateUserId = _httpContextAccessor.HttpContext.User.Identities.ToString(),
                 Name = request.Name,
                 CreateDate = DateTime.UtcNow,
             };

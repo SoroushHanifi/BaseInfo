@@ -1,8 +1,12 @@
 ﻿using Application.CQRS;
+using Application.Infra;
 using Application.OptionPatternModel;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Domain;
 using Infrastructure;
 using Infrastructure.Models;
+using Infrastructure.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -44,6 +48,47 @@ namespace BaseInfo.Extensions
         public static void AddMediatRInternal(this IServiceCollection services)
         {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateDepartmentCommandHandler).Assembly));
+        }
+
+
+        public static void InjectedClasses(this IServiceCollection services)
+        {
+            //services.BuildServiceProvider();
+            services.AddHttpContextAccessor();
+            services.AddOptionPatternInternal();
+            services.AddCorsInternal();
+            services.AddDbContextInternal();
+            services.AddMongoDb();
+
+            services.AddScoped<IClaimHelper, ClaimHelper>();
+
+            var types = new List<Type>()
+            {
+                typeof(GetAllDepartmentsQuery)
+            };
+
+            //services.AddScoped<CreateDepartmentCommand>();
+            //types.Add(typeof(CreateDepartmentCommand));
+
+           
+            //else if (env.IsEnvironment(ConstantValues.Organizations.Kanoon) || env.IsEnvironment(ConstantValues.Organizations.Moshavere))
+            //{
+            //    types.Add(typeof(CreateCaseEstekhdamHelper));
+            //    if (env.IsEnvironment(ConstantValues.Organizations.Kanoon))
+            //    {
+            //        services.AddScoped<CreateCaseKanoonHelper>();
+            //        types.Add(typeof(CreateCaseKanoonProcessCommand));
+            //        //services.AddHostedService<Bizagi.Application.CQRS.Kanoon.G4BCreateCaseBackgroundService>();
+            //    }
+            //    else
+            //    {
+            //        services.AddScoped<CreateCaseMoshavereHelper>();
+            //        types.Add(typeof(CreateCaseMoshavereProcessCommand));
+            //        //services.AddHostedService<Bizagi.Application.CQRS.Moshavere.G4BCreateCaseBackgroundService>();
+            //    }
+            //}
+            services.AddMediatrInternal();
+            services.AddMediatrInternal([.. types]);
         }
 
 
