@@ -14,6 +14,7 @@ namespace Infrastructure
 
         public DbSet<Department> Departments { get; set; }
         public DbSet<Scope> Scopes { get; set; }
+        public DbSet<MainTitle> MainTitles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,43 @@ namespace Infrastructure
                 entity.HasIndex(e => e.Name);
                 entity.HasIndex(e => e.DepartmentId);
             });
+
+            // پیکربندی MainTitle
+            modelBuilder.Entity<MainTitle>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Name)
+                      .HasMaxLength(300)
+                      .IsRequired();
+
+                entity.Property(e => e.Description)
+                      .HasMaxLength(1000);
+
+
+                entity.Property(e => e.Amount)
+                      .HasColumnType("decimal(18,2)")
+                      .IsRequired();
+
+                entity.Property(e => e.CreateUserId)
+                      .IsRequired();
+
+                // رابطه با Scope (One-to-Many)
+                entity.HasOne(mt => mt.Scope)
+                      .WithMany(s => s.MainTitles)
+                      .HasForeignKey(mt => mt.ScopeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Index ها برای بهبود عملکرد
+                entity.HasIndex(e => e.Name);
+                entity.HasIndex(e => e.ScopeId);
+                entity.HasIndex(e => e.IsDelete);
+                entity.HasIndex(e => e.DisplayOrder);
+
+                // Index ترکیبی برای بهبود query های متداول
+                entity.HasIndex(e => new { e.ScopeId, e.IsDelete, e.DisplayOrder });
+            });
+
         }
     }
 }

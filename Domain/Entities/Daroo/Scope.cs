@@ -18,6 +18,6 @@ namespace Domain.Entities.Daroo
 
         
         public Department Department { get; set; } = null!;
-
+        public virtual ICollection<MainTitle> MainTitles { get; set; } = new List<MainTitle>();
     }
 }
