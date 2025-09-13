@@ -2,6 +2,7 @@
 using Application.Refits;
 using Domain;
 using Domain.Entities.Daroo;
+using FluentValidation;
 using Infrastructure;
 using Infrastructure.Exceptions;
 using Infrastructure.Utility;
@@ -51,6 +52,17 @@ namespace Application.CQRS
             await _context.SaveChangesAsync(cancellationToken);
 
             return department.Id;
+        }
+    }
+
+    public class CreateDepartmentValidator : AbstractValidator<CreateDepartmentCommand>
+    {
+        public CreateDepartmentValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("نام اداره کل الزامی است")
+                .MinimumLength(2)
+                .MaximumLength(200);
         }
     }
 

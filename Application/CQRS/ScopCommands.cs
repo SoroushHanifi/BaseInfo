@@ -1,0 +1,153 @@
+﻿using Application.OptionPatternModel;
+using Application.Refits;
+using Domain;
+using Domain.Entities.Daroo;
+using Infrastructure;
+using Infrastructure.Exceptions;
+using Infrastructure.Utility;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+
+namespace Application.CQRS
+{
+    // ===== CREATE COMMAND =====
+    public record CreateScopeCommand(string Name, int DepartmentId) : IRequest<int>;
+
+    public class CreateScopeCommandHandler : IRequestHandler<CreateScopeCommand, int>
+    {
+        private readonly DarooDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IClaimHelper _claimHelper;
+        private readonly ISSOClient _sSOClient;
+        private readonly AppSettingsOption _appSettingsOption;
+
+        public CreateScopeCommandHandler(
+            IClaimHelper claimHelper,
+            ISSOClient sSOClient,
+            DarooDbContext context,
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<AppSettingsOption> appSettingOption)
+        {
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            _claimHelper = claimHelper;
+            _sSOClient = sSOClient;
+            _appSettingsOption = appSettingOption.Value;
+        }
+
+        public async Task<int> Handle(CreateScopeCommand request, CancellationToken cancellationToken)
+        {
+            // بررسی وجود اداره کل
+            var departmentExists = await _context.Departments
+                .AnyAsync(d => d.Id == request.DepartmentId && !d.IsDelete, cancellationToken);
+
+            if (!departmentExists)
+                throw new AppException("اداره کل مورد نظر یافت نشد");
+
+            // بررسی تکراری نبودن نام در همین اداره کل
+            var nameExists = await _context.Scopes
+                .AnyAsync(s => s.Name == request.Name &&
+                              s.DepartmentId == request.DepartmentId &&
+                              !s.IsDelete, cancellationToken);
+
+            if (nameExists)
+                throw new AppException("نام حوزه در این اداره کل تکراری است");
+
+
+
+            // دریافت اطلاعات کاربر
+            var token = _httpContextAccessor.HttpContext?.Request.Cookies[_appSettingsOption.Settings.CookieInfo.Name];
+            var result = await _sSOClient.GetCurrentUser($"{_appSettingsOption.Settings.CookieInfo.Name}=" + token);
+
+            if (result.IsSuccess is false || result.Data is null)
+                throw new AppException(Messages.UserNotFound);
+
+            var scope = new Scope
+            {
+                Name = request.Name,
+                DepartmentId = request.DepartmentId,
+                CreateUserId = result.Data.NationalCode,
+                CreateDate = DateTime.Now,
+                ModifyDate = DateTime.Now,
+            
+            };
+
+            _context.Scopes.Add(scope);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return scope.Id;
+        }
+    }
+
+    // ===== UPDATE COMMAND =====
+    public record UpdateScopeCommand(int Id, string Name) : IRequest<bool>;
+
+    public class UpdateScopeCommandHandler : IRequestHandler<UpdateScopeCommand, bool>
+    {
+        private readonly DarooDbContext _context;
+
+        public UpdateScopeCommandHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<bool> Handle(UpdateScopeCommand request, CancellationToken cancellationToken)
+        {
+            var scope = await _context.Scopes
+                .FirstOrDefaultAsync(s => s.Id == request.Id && !s.IsDelete, cancellationToken);
+
+            if (scope == null)
+                return false;
+
+            // بررسی تکراری نبودن نام در همین اداره کل (جز خودش)
+            var nameExists = await _context.Scopes
+                .AnyAsync(s => s.Name == request.Name &&
+                              s.DepartmentId == scope.DepartmentId &&
+                              s.Id != request.Id &&
+                              !s.IsDelete, cancellationToken);
+
+            if (nameExists)
+                throw new AppException("نام حوزه در این اداره کل تکراری است");
+
+            scope.Name = request.Name;
+            scope.ModifyDate = DateTime.Now;
+
+            _context.Scopes.Update(scope);
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+    }
+
+    // ===== DELETE COMMAND (Soft Delete) =====
+    public record DeleteScopeCommand(int Id) : IRequest<bool>;
+
+    public class DeleteScopeCommandHandler : IRequestHandler<DeleteScopeCommand, bool>
+    {
+        private readonly DarooDbContext _context;
+
+        public DeleteScopeCommandHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<bool> Handle(DeleteScopeCommand request, CancellationToken cancellationToken)
+        {
+            var scope = await _context.Scopes
+                .FirstOrDefaultAsync(s => s.Id == request.Id && !s.IsDelete, cancellationToken);
+
+            if (scope == null)
+                return false;
+
+            scope.IsDelete = true;
+            scope.ModifyDate = DateTime.Now;
+
+            _context.Scopes.Update(scope);
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+    }
+
+
+}
