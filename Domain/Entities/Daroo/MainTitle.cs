@@ -42,5 +42,7 @@ namespace Domain.Entities.Daroo
         /// اولویت نمایش (برای مرتب‌سازی)
         /// </summary>
         public int DisplayOrder { get; set; } = 0;
+
+        public virtual ICollection<MainTitleServiceFeature> MainTitleServiceFeatures { get; set; } = new List<MainTitleServiceFeature>();
     }
 }
