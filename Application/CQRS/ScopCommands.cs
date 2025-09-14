@@ -2,6 +2,7 @@
 using Application.Refits;
 using Domain;
 using Domain.Entities.Daroo;
+using FluentValidation;
 using Infrastructure;
 using Infrastructure.Exceptions;
 using Infrastructure.Utility;
@@ -146,6 +147,36 @@ namespace Application.CQRS
             _context.Scopes.Update(scope);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
+        }
+    }
+
+    // Validator برای CreateScopeCommand
+    public class CreateScopeValidator : AbstractValidator<CreateScopeCommand>
+    {
+        public CreateScopeValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("نام حوزه الزامی است")
+                .MinimumLength(2).WithMessage("نام حوزه باید حداقل 2 کاراکتر باشد")
+                .MaximumLength(250).WithMessage("نام حوزه نباید بیشتر از 250 کاراکتر باشد");
+
+            RuleFor(x => x.DepartmentId)
+                .GreaterThan(0).WithMessage("شناسه اداره کل باید عددی مثبت باشد");
+        }
+    }
+
+    // Validator برای UpdateScopeCommand
+    public class UpdateScopeValidator : AbstractValidator<UpdateScopeCommand>
+    {
+        public UpdateScopeValidator()
+        {
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("شناسه حوزه باید عددی مثبت باشد");
+
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("نام حوزه الزامی است")
+                .MinimumLength(2).WithMessage("نام حوزه باید حداقل 2 کاراکتر باشد")
+                .MaximumLength(250).WithMessage("نام حوزه نباید بیشتر از 250 کاراکتر باشد");
         }
     }
 

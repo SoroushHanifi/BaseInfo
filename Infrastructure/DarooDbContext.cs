@@ -84,6 +84,8 @@ namespace Infrastructure
 
                 // Index ترکیبی برای بهبود query های متداول
                 entity.HasIndex(e => new { e.ScopeId, e.IsDelete, e.DisplayOrder });
+                entity.HasIndex(e => new { e.IsDelete, e.Amount }); // برای گزارش‌های مالی
+
             });
 
         }

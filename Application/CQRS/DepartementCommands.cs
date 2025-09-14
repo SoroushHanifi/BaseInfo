@@ -120,4 +120,18 @@ namespace Application.CQRS
         }
     }
 
+    public class UpdateDepartmentValidator : AbstractValidator<UpdateDepartmentCommand>
+    {
+        public UpdateDepartmentValidator()
+        {
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("شناسه اداره کل باید عددی مثبت باشد");
+
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("نام اداره کل الزامی است")
+                .MinimumLength(2).WithMessage("نام اداره کل باید حداقل 2 کاراکتر باشد")
+                .MaximumLength(200).WithMessage("نام اداره کل نباید بیشتر از 200 کاراکتر باشد");
+        }
+    }
+
 }
