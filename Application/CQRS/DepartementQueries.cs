@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Daroo;
+﻿using Application.Common;
+using Domain.Entities.Daroo;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,61 @@ namespace Application.CQRS
                 .ToListAsync(cancellationToken);
         }
     }
+    public record GetAllDepartmentsPaginationQuery(int PageIndex = 1, int PageSize = 10) : IRequest<PagedData<DepartmentDto>>;
+
+    public class GetAllDepartmentsPaginationQueryHandler : IRequestHandler<GetAllDepartmentsPaginationQuery, PagedData<DepartmentDto>>
+    {
+        private readonly DarooDbContext _context;
+
+        public GetAllDepartmentsPaginationQueryHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<PagedData<DepartmentDto>> Handle(GetAllDepartmentsPaginationQuery request, CancellationToken cancellationToken)
+        {
+            // تنظیم مقادیر پیش‌فرض
+            int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
+            int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+            // دریافت تعداد کل رکوردها
+            int totalCount = await _context.Departments
+                .Where(d => !d.IsDelete)
+                .CountAsync(cancellationToken);
+
+            // محاسبه تعداد صفحات
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // دریافت داده‌های صفحه‌بندی‌شده
+            var items = await _context.Departments
+                .Where(d => !d.IsDelete)
+                .OrderBy(d => d.Name) // مرتب‌سازی بر اساس نام (اختیاری)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(d => new DepartmentDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    CreateUserId = d.CreateUserId,
+                    CreateDate = d.CreateDate,
+                    ModifyDate = d.ModifyDate,
+                    IsDelete = d.IsDelete
+                })
+                .ToListAsync(cancellationToken);
+
+            return new PagedData<DepartmentDto>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                IndexFrom = (pageIndex - 1) * pageSize,
+                Items = items,
+                HasPreviousPage = pageIndex > 1,
+                HasNextPage = pageIndex < totalPages
+            };
+        }
+    }
 
     // ===== GetById Query =====
     public record GetDepartmentByIdQuery(int Id) : IRequest<DepartmentDto?>;
@@ -92,7 +148,7 @@ namespace Application.CQRS
         {
             return await _context.Departments
                 .Where(d => !d.IsDelete)
-                .OrderBy(d => d.Name)
+                .OrderBy(d => d.Id)
                 .Select(d => new DepartmentDto
                 {
                     Id = d.Id,
@@ -102,6 +158,57 @@ namespace Application.CQRS
                     IsDelete = d.IsDelete
                 })
                 .ToListAsync(cancellationToken);
+        }
+    }
+
+    public record GetActiveDepartmentsPaginationQuery(int PageIndex = 1, int PageSize = 10) : IRequest<PagedData<DepartmentDto>>;
+    public class GetActiveDepartmentsPaginationQueryHandler : IRequestHandler<GetActiveDepartmentsPaginationQuery, PagedData<DepartmentDto>>
+    {
+        private readonly DarooDbContext _context;
+
+        public GetActiveDepartmentsPaginationQueryHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<PagedData<DepartmentDto>> Handle(GetActiveDepartmentsPaginationQuery request, CancellationToken cancellationToken)
+        {
+            int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
+            int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+            int totalCount = await _context.Departments
+                .Where(d => !d.IsDelete)
+                .CountAsync(cancellationToken);
+
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.Departments
+                .Where(d => !d.IsDelete)
+                .OrderBy(d => d.Name)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(d => new DepartmentDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    CreateUserId = d.CreateUserId,
+                    CreateDate = d.CreateDate,
+                    ModifyDate = d.ModifyDate,
+                    IsDelete = d.IsDelete
+                })
+                .ToListAsync(cancellationToken);
+
+            return new PagedData<DepartmentDto>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                IndexFrom = (pageIndex - 1) * pageSize,
+                Items = items,
+                HasPreviousPage = pageIndex > 1,
+                HasNextPage = pageIndex < totalPages
+            };
         }
     }
 }

@@ -36,6 +36,19 @@ namespace BaseInfo.Controllers
             });
         }
 
+        [HttpGet("[action]")]
+        public async Task<ActionResult<ApiResult<PagedData<DepartmentDto>>>> GetAllPagination([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            var query = new GetAllDepartmentsPaginationQuery(pageIndex, pageSize);
+            var result = await _mediator.Send(query);
+            return Ok(new ApiResult<PagedData<DepartmentDto>>
+            {
+                IsSuccess = true,
+                Messages = null,
+                Data = result
+            });
+        }
+
         /// <summary>
         /// دریافت اداره کل بر اساس ID
         /// </summary>
@@ -69,6 +82,19 @@ namespace BaseInfo.Controllers
             return Ok(new ApiResult<List<DepartmentDto>> 
             {
                 IsSuccess = true,
+                Data = result
+            });
+        }
+
+        [HttpGet("[action]")]
+        public async Task<ActionResult<ApiResult<PagedData<DepartmentDto>>>> GetActivePagination([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            var query = new GetActiveDepartmentsPaginationQuery(pageIndex, pageSize);
+            var result = await _mediator.Send(query);
+            return Ok(new ApiResult<PagedData<DepartmentDto>>
+            {
+                IsSuccess = true,
+                Messages = null,
                 Data = result
             });
         }
