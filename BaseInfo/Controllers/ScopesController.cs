@@ -120,10 +120,10 @@ namespace BaseInfo.Controllers
         /// <param name="id">شناسه حوزه</param>
         /// <param name="request">اطلاعات جدید</param>
         /// <returns></returns>
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateScopeRequest request)
+        [HttpPut("[action]")]
+        public async Task<ActionResult> Update([FromBody] UpdateScopeRequest request)
         {
-            var command = new UpdateScopeCommand(id, request.Name);
+            var command = new UpdateScopeCommand(request.Id, request.Name);
             var result = await _mediator.Send(command);
 
             if (!result)
@@ -180,6 +180,7 @@ namespace BaseInfo.Controllers
     /// </summary>
     public class UpdateScopeRequest
     {
+        public int Id { get; set; }
         /// <summary>
         /// نام حوزه
         /// </summary>

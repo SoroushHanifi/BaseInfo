@@ -202,11 +202,11 @@ namespace BaseInfo.Controllers
         /// <param name="id">شناسه عنوان اصلی</param>
         /// <param name="request">اطلاعات جدید</param>
         /// <returns></returns>
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateMainTitleRequest request)
+        [HttpPut("[action]")]
+        public async Task<ActionResult> Update([FromBody] UpdateMainTitleRequest request)
         {
             var command = new UpdateMainTitleCommand(
-                id,
+                request.Id,
                 request.Name,
                 request.Description,
                 request.Amount,
@@ -216,7 +216,7 @@ namespace BaseInfo.Controllers
             var result = await _mediator.Send(command);
 
             if (!result)
-                return NotFound($"MainTitle with ID {id} not found.");
+                return NotFound($"MainTitle with ID {request.Id} not found.");
 
             return Ok(new { Message = "MainTitle updated successfully" });
         }
@@ -353,6 +353,7 @@ namespace BaseInfo.Controllers
     /// </summary>
     public class UpdateMainTitleRequest
     {
+        public int Id { get; set; }
         /// <summary>
         /// نام عنوان اصلی
         /// </summary>

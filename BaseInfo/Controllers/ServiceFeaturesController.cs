@@ -136,8 +136,8 @@ namespace BaseInfo.Controllers
         /// <param name="id">شناسه ویژگی خدمات</param>
         /// <param name="request">اطلاعات جدید</param>
         /// <returns></returns>
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateServiceFeatureRequest request)
+        [HttpPut("[action]")]
+        public async Task<ActionResult> Update([FromBody] UpdateServiceFeatureRequest request)
         {
             var command = new UpdateServiceFeatureCommand(
                 id,
@@ -293,6 +293,7 @@ namespace BaseInfo.Controllers
     /// </summary>
     public class UpdateServiceFeatureRequest
     {
+        public int Id { get; set; }
         /// <summary>
         /// نام ویژگی خدمات
         /// </summary>
