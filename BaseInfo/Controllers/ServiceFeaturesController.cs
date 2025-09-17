@@ -66,7 +66,7 @@ namespace BaseInfo.Controllers
         /// <param name="mainTitleId">شناسه عنوان اصلی</param>
         /// <param name="activeOnly">فقط ویژگی‌های فعال (پیش‌فرض false)</param>
         /// <returns>لیست ویژگی‌های خدمات مربوط به عنوان اصلی</returns>
-        [HttpGet("by-maintitle/{mainTitleId}")]
+        [HttpGet("/{mainTitleId}")]
         public async Task<ActionResult<List<MainTitleServiceFeatureDto>>> GetByMainTitle(
             int mainTitleId,
             [FromQuery] bool activeOnly = false)
@@ -206,7 +206,7 @@ namespace BaseInfo.Controllers
         /// <param name="relationId">شناسه ارتباط</param>
         /// <param name="request">اطلاعات جدید</param>
         /// <returns></returns>
-        [HttpPut("relations/{relationId}")]
+        [HttpPut("/{relationId}")]
         public async Task<ActionResult> UpdateRelation(int relationId, [FromBody] UpdateServiceFeatureRelationRequest request)
         {
             var command = new UpdateMainTitleServiceFeatureCommand(
@@ -229,7 +229,7 @@ namespace BaseInfo.Controllers
         /// </summary>
         /// <param name="relationId">شناسه ارتباط</param>
         /// <returns></returns>
-        [HttpDelete("relations/{relationId}")]
+        [HttpDelete("/{relationId}")]
         public async Task<ActionResult> RemoveRelation(int relationId)
         {
             var command = new RemoveServiceFeatureFromMainTitleCommand(relationId);

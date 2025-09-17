@@ -24,15 +24,33 @@ namespace BaseInfo.Controllers
         /// </summary>
         /// <returns>لیست حوزه‌ها</returns>
         [HttpGet]
-        public async Task<ActionResult<List<ScopeDto>>> GetAll()
+        public async Task<ActionResult<List<ScopeDto>>> GetAll([FromQuery] int? id)
         {
-            var query = new GetAllScopesQuery();
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<List<ScopeDto>>
+            if (id != null)
             {
-                IsSuccess = true,
-                Data = result
-            });
+                var query = new GetScopeByIdQuery((int)id);
+                var result = await _mediator.Send(query);
+
+                if (result == null)
+                    return NotFound($"Scope with ID {id} not found.");
+
+                return Ok(new ApiResult<ScopeDto>
+                {
+                    IsSuccess = true,
+                    Data = result
+                });
+            }
+            else 
+            {
+                var query = new GetAllScopesQuery();
+                var result = await _mediator.Send(query);
+                return Ok(new ApiResult<List<ScopeDto>>
+                {
+                    IsSuccess = true,
+                    Data = result
+                });
+            }
+              
         }
 
         /// <summary>
