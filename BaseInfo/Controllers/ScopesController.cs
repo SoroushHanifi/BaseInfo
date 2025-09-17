@@ -127,7 +127,7 @@ namespace BaseInfo.Controllers
             var result = await _mediator.Send(command);
 
             if (!result)
-                return NotFound($"Scope with ID {id} not found.");
+                return NotFound($"Scope with ID {request.Id} not found.");
 
             return Ok(new { Message = "Scope updated successfully" });
         }

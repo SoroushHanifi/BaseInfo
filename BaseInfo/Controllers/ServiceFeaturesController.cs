@@ -140,7 +140,7 @@ namespace BaseInfo.Controllers
         public async Task<ActionResult> Update([FromBody] UpdateServiceFeatureRequest request)
         {
             var command = new UpdateServiceFeatureCommand(
-                id,
+                request.Id,
                 request.Name,
                 request.Description,
                 request.Code,
@@ -153,7 +153,7 @@ namespace BaseInfo.Controllers
             var result = await _mediator.Send(command);
 
             if (!result)
-                return NotFound($"ServiceFeature with ID {id} not found.");
+                return NotFound($"ServiceFeature with ID {request.Id} not found.");
 
             return Ok(new { Message = "ServiceFeature updated successfully" });
         }
