@@ -1,4 +1,5 @@
-﻿using Application.CQRS;
+﻿using Application.Common;
+using Application.CQRS;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace BaseInfo.Controllers
         {
             var query = new GetAllServiceFeaturesQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<ServiceFeatureDto>> { IsSuccess = true , Data = result });
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace BaseInfo.Controllers
             if (result == null)
                 return NotFound($"ServiceFeature with ID {id} not found.");
 
-            return Ok(result);
+            return Ok(new ApiResult<ServiceFeatureDto> { IsSuccess = true, Data = result });
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace BaseInfo.Controllers
         {
             var query = new GetServiceFeaturesByMainTitleQuery(mainTitleId, activeOnly);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleServiceFeatureDto>> { IsSuccess = true, Data = result });
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace BaseInfo.Controllers
         {
             var query = new GetMainTitlesByServiceFeatureQuery(serviceFeatureId, activeOnly);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleServiceFeatureDto>> { IsSuccess = true, Data = result });
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace BaseInfo.Controllers
         {
             var query = new GetAllMainTitleServiceFeaturesQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleServiceFeatureDto>> { IsSuccess = true, Data = result });
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Application.CQRS;
+﻿using Application.Common;
+using Application.CQRS;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetAllScopesQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<ScopeDto>>
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>
@@ -44,7 +49,11 @@ namespace BaseInfo.Controllers
             if (result == null)
                 return NotFound($"Scope with ID {id} not found.");
 
-            return Ok(result);
+            return Ok(new ApiResult<ScopeDto> 
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>
@@ -57,7 +66,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetScopesByDepartmentIdQuery(departmentId);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<ScopeSimpleDto>> 
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>
@@ -76,7 +89,11 @@ namespace BaseInfo.Controllers
 
             var query = new SearchScopesQuery(searchTerm, departmentId);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<ScopeDto>> 
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>

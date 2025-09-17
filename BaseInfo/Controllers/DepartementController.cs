@@ -1,4 +1,5 @@
-﻿using Application.CQRS;
+﻿using Application.Common;
+using Application.CQRS;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetAllDepartmentsQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<DepartmentDto>>
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>
@@ -45,7 +50,11 @@ namespace BaseInfo.Controllers
             if (result == null)
                 return NotFound($"Department with ID {id} not found.");
 
-            return Ok(result);
+            return Ok(new ApiResult<DepartmentDto> 
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>
@@ -57,7 +66,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetActiveDepartmentsQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<DepartmentDto>> 
+            {
+                IsSuccess = true,
+                Data = result
+            });
         }
 
         /// <summary>
@@ -84,14 +97,14 @@ namespace BaseInfo.Controllers
         /// <param name="id">شناسه اداره کل</param>
         /// <param name="request">اطلاعات جدید</param>
         /// <returns></returns>
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateDepartmentRequest request)
+        [HttpPut]
+        public async Task<ActionResult> Update([FromBody] UpdateDepartmentRequest request)
         {
-            var command = new UpdateDepartmentCommand(id, request.Name);
+            var command = new UpdateDepartmentCommand(request.Id, request.Name);
             var result = await _mediator.Send(command);
 
             if (!result)
-                return NotFound($"Department with ID {id} not found.");
+                return NotFound($"Department with ID {request.Id} not found.");
 
             return Ok(new { Message = "Department updated successfully" });
         }
@@ -135,6 +148,7 @@ namespace BaseInfo.Controllers
     /// </summary>
     public class UpdateDepartmentRequest
     {
+        public int Id { get; set; }
         /// <summary>
         /// نام اداره کل
         /// </summary>

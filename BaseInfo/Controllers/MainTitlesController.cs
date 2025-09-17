@@ -1,4 +1,5 @@
-﻿using Application.CQRS;
+﻿using Application.Common;
+using Application.CQRS;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetAllMainTitlesQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleDto>>
+            {
+                IsSuccess = true,
+                Data = result   
+            });
         }
 
         /// <summary>
@@ -44,7 +49,11 @@ namespace BaseInfo.Controllers
             if (result == null)
                 return NotFound($"MainTitle with ID {id} not found.");
 
-            return Ok(result);
+            return Ok(new ApiResult<MainTitleDto> 
+            {
+                IsSuccess = true,
+                Data= result
+            });
         }
 
         /// <summary>
@@ -57,7 +66,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetMainTitlesByScopeQuery(scopeId);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleSimpleDto>>
+            {
+                IsSuccess= true,
+                Data= result
+            });
         }
 
         /// <summary>
@@ -70,7 +83,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetMainTitlesByDepartmentQuery(departmentId);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleDto>> 
+            {
+                IsSuccess = true,
+                Data= result
+            });
         }
 
         /// <summary>
@@ -109,7 +126,11 @@ namespace BaseInfo.Controllers
 
             var query = new SearchMainTitlesQuery(searchTerm, scopeId, departmentId, minAmount, maxAmount);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleDto>>
+            {
+                IsSuccess = true,
+                Data= result
+            });
         }
 
         /// <summary>
@@ -121,7 +142,11 @@ namespace BaseInfo.Controllers
         {
             var query = new GetMainTitlesSummaryQuery();
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleSummaryDto>> 
+            {
+                IsSuccess = true,
+                Data= result
+            });
         }
 
         /// <summary>
@@ -139,7 +164,11 @@ namespace BaseInfo.Controllers
 
             var query = new GetTopExpensiveMainTitlesQuery(top);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return Ok(new ApiResult<List<MainTitleDto>> 
+            {
+                IsSuccess = true,   
+                Data = result
+            });
         }
 
         /// <summary>
