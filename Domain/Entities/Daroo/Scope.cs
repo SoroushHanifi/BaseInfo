@@ -8,20 +8,11 @@ namespace Domain.Entities.Daroo
     /// انتیتی حوزه - هر اداره کل می‌تواند چندین حوزه داشته باشد
     /// </summary>
     [Table("Scopes")]
-    public class Scope
+    public class Scope : BizagiBaseEntity
     {
         [Key]
         [Column("idScopes")]
         public long Id { get; set; }
-
-        [Column("finalEnt")]
-        public int FinalEnt { get; set; } = 10009;
-
-        [Column("baCreatedTime")]
-        public long BaCreatedTime { get; set; }
-
-        [Column("baGuid")]
-        public Guid BaGuid { get; set; } = Guid.NewGuid();
 
         [Column("Name")]
         [MaxLength(50)]
@@ -33,21 +24,17 @@ namespace Domain.Entities.Daroo
         [Column("CreateUserID")]
         public long? CreateUserID { get; set; }
 
-        [Column("CreateDate")]
-        public DateTime? CreateDate { get; set; }
-
-        [Column("ModifyDate")]
-        public DateTime? ModifyDate { get; set; }
-
-        [Column("IsDeleted")]
-        public bool? IsDeleted { get; set; }
-
         // Navigation Properties
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; } = null!;
 
         public virtual ICollection<MainTitle> MainTitles { get; set; } = new List<MainTitle>();
-    }
 
+        public override void PrepareForCreation()
+        {
+            FinalEnt = 10009;
+            base.PrepareForCreation();
+        }
+    }
 
 }

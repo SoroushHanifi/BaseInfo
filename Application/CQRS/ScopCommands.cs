@@ -14,9 +14,9 @@ using Microsoft.Extensions.Options;
 namespace Application.CQRS
 {
     // ===== CREATE COMMAND =====
-    public record CreateScopeCommand(string Name, int DepartmentId) : IRequest<int>;
+    public record CreateScopeCommand(string Name, long DepartmentId) : IRequest<long>;
 
-    public class CreateScopeCommandHandler : IRequestHandler<CreateScopeCommand, int>
+    public class CreateScopeCommandHandler : IRequestHandler<CreateScopeCommand, long>
     {
         private readonly DarooDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -38,11 +38,11 @@ namespace Application.CQRS
             _appSettingsOption = appSettingOption.Value;
         }
 
-        public async Task<int> Handle(CreateScopeCommand request, CancellationToken cancellationToken)
+        public async Task<long> Handle(CreateScopeCommand request, CancellationToken cancellationToken)
         {
             // بررسی وجود اداره کل
             var departmentExists = await _context.Departments
-                .AnyAsync(d => d.Id == request.DepartmentId && !d.IsDelete, cancellationToken);
+                .AnyAsync(d => d.Id == request.DepartmentId && d.IsDeleted != true, cancellationToken);
 
             if (!departmentExists)
                 throw new AppException("اداره کل مورد نظر یافت نشد");
@@ -51,12 +51,10 @@ namespace Application.CQRS
             var nameExists = await _context.Scopes
                 .AnyAsync(s => s.Name == request.Name &&
                               s.DepartmentId == request.DepartmentId &&
-                              !s.IsDelete, cancellationToken);
+                              s.IsDeleted != true, cancellationToken);
 
             if (nameExists)
                 throw new AppException("نام حوزه در این اداره کل تکراری است");
-
-
 
             // دریافت اطلاعات کاربر
             var token = _httpContextAccessor.HttpContext?.Request.Cookies[_appSettingsOption.Settings.CookieInfo.Name];
@@ -69,11 +67,10 @@ namespace Application.CQRS
             {
                 Name = request.Name,
                 DepartmentId = request.DepartmentId,
-                CreateUserId = result.Data.NationalCode,
-                CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now,
-            
+                CreateUserID = long.Parse(result.Data.NationalCode)
             };
+
+            scope.PrepareForCreation();
 
             _context.Scopes.Add(scope);
             await _context.SaveChangesAsync(cancellationToken);
@@ -82,8 +79,7 @@ namespace Application.CQRS
         }
     }
 
-    // ===== UPDATE COMMAND =====
-    public record UpdateScopeCommand(int Id, string Name) : IRequest<bool>;
+    public record UpdateScopeCommand(long Id, string Name) : IRequest<bool>;
 
     public class UpdateScopeCommandHandler : IRequestHandler<UpdateScopeCommand, bool>
     {
@@ -97,7 +93,7 @@ namespace Application.CQRS
         public async Task<bool> Handle(UpdateScopeCommand request, CancellationToken cancellationToken)
         {
             var scope = await _context.Scopes
-                .FirstOrDefaultAsync(s => s.Id == request.Id && !s.IsDelete, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == request.Id && s.IsDeleted != true, cancellationToken);
 
             if (scope == null)
                 return false;
@@ -107,13 +103,13 @@ namespace Application.CQRS
                 .AnyAsync(s => s.Name == request.Name &&
                               s.DepartmentId == scope.DepartmentId &&
                               s.Id != request.Id &&
-                              !s.IsDelete, cancellationToken);
+                              s.IsDeleted != true, cancellationToken);
 
             if (nameExists)
                 throw new AppException("نام حوزه در این اداره کل تکراری است");
 
             scope.Name = request.Name;
-            scope.ModifyDate = DateTime.Now;
+            scope.PrepareForUpdate();
 
             _context.Scopes.Update(scope);
             await _context.SaveChangesAsync(cancellationToken);
@@ -121,8 +117,7 @@ namespace Application.CQRS
         }
     }
 
-    // ===== DELETE COMMAND (Soft Delete) =====
-    public record DeleteScopeCommand(int Id) : IRequest<bool>;
+    public record DeleteScopeCommand(long Id) : IRequest<bool>;
 
     public class DeleteScopeCommandHandler : IRequestHandler<DeleteScopeCommand, bool>
     {
@@ -136,19 +131,19 @@ namespace Application.CQRS
         public async Task<bool> Handle(DeleteScopeCommand request, CancellationToken cancellationToken)
         {
             var scope = await _context.Scopes
-                .FirstOrDefaultAsync(s => s.Id == request.Id && !s.IsDelete, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == request.Id && s.IsDeleted != true, cancellationToken);
 
             if (scope == null)
                 return false;
 
-            scope.IsDelete = true;
-            scope.ModifyDate = DateTime.Now;
+            scope.SoftDelete();
 
             _context.Scopes.Update(scope);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
     }
+
 
     // Validator برای CreateScopeCommand
     public class CreateScopeValidator : AbstractValidator<CreateScopeCommand>
@@ -158,14 +153,13 @@ namespace Application.CQRS
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("نام حوزه الزامی است")
                 .MinimumLength(2).WithMessage("نام حوزه باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(250).WithMessage("نام حوزه نباید بیشتر از 250 کاراکتر باشد");
+                .MaximumLength(50).WithMessage("نام حوزه نباید بیشتر از 50 کاراکتر باشد");
 
             RuleFor(x => x.DepartmentId)
                 .GreaterThan(0).WithMessage("شناسه اداره کل باید عددی مثبت باشد");
         }
     }
 
-    // Validator برای UpdateScopeCommand
     public class UpdateScopeValidator : AbstractValidator<UpdateScopeCommand>
     {
         public UpdateScopeValidator()
@@ -176,9 +170,8 @@ namespace Application.CQRS
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("نام حوزه الزامی است")
                 .MinimumLength(2).WithMessage("نام حوزه باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(250).WithMessage("نام حوزه نباید بیشتر از 250 کاراکتر باشد");
+                .MaximumLength(50).WithMessage("نام حوزه نباید بیشتر از 50 کاراکتر باشد");
         }
     }
-
 
 }

@@ -8,20 +8,11 @@ namespace Domain.Entities.Daroo
     /// انتیتی عنوان اصلی - هر حوزه می‌تواند چندین عنوان اصلی داشته باشد
     /// </summary>
     [Table("MainTitle")]
-    public class MainTitle
+    public class MainTitle : BizagiBaseEntity
     {
         [Key]
         [Column("idMainTitle")]
         public long Id { get; set; }
-
-        [Column("finalEnt")]
-        public int FinalEnt { get; set; } = 10012;
-
-        [Column("baCreatedTime")]
-        public long BaCreatedTime { get; set; }
-
-        [Column("baGuid")]
-        public Guid BaGuid { get; set; } = Guid.NewGuid();
 
         [Column("Name")]
         [MaxLength(50)]
@@ -44,21 +35,20 @@ namespace Domain.Entities.Daroo
         [Column("CreateUserID")]
         public long? CreateUserID { get; set; }
 
-        [Column("CreateDate")]
-        public DateTime? CreateDate { get; set; }
-
-        [Column("ModifyDate")]
-        public DateTime? ModifyDate { get; set; }
-
-        [Column("IsDeleted")]
-        public bool? IsDeleted { get; set; }
-
         [Column("BpmType")]
         public long? BpmType { get; set; }
 
         // Navigation Properties
         [ForeignKey("ScopesId")]
         public virtual Scope Scope { get; set; } = null!;
+
+        public virtual ICollection<ProductType> ProductTypes { get; set; } = new List<ProductType>();
+
+        public override void PrepareForCreation()
+        {
+            FinalEnt = 10012;
+            base.PrepareForCreation();
+        }
     }
 
 }

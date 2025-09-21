@@ -15,6 +15,9 @@ namespace Infrastructure
         public DbSet<Scope> Scopes { get; set; }
         public DbSet<MainTitle> MainTitles { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
+        public DbSet<ServiceFeature> ServiceFeatures { get; set; }
+        public DbSet<MainTitleServiceFeature> MainTitleServiceFeatures { get; set; }
+
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -4,22 +4,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.CQRS
 {
-    // ===== DTOs =====
     public class ScopeDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
         public string DepartmentName { get; set; } = string.Empty;
-        public bool IsDelete { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
-        public string CreateUserId { get; set; } = string.Empty;
+        public long? CreateUserID { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? ModifyDate { get; set; }
+        public bool? IsDeleted { get; set; }
+        public int FinalEnt { get; set; }
+        public long BaCreatedTime { get; set; }
+        public Guid BaGuid { get; set; }
+
+        public DateTime? BaCreatedDateTime => BaCreatedTime > 0
+            ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(BaCreatedTime)
+            : null;
     }
 
     public class ScopeSimpleDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
     }
 
@@ -39,7 +45,7 @@ namespace Application.CQRS
         {
             return await _context.Scopes
                 .Include(s => s.Department)
-                .Where(s => !s.IsDelete)
+                .Where(s => s.IsDeleted != true)
                 .OrderBy(s => s.Department.Name)
                 .ThenBy(s => s.Name)
                 .Select(s => new ScopeDto
@@ -48,17 +54,19 @@ namespace Application.CQRS
                     Name = s.Name,
                     DepartmentId = s.DepartmentId,
                     DepartmentName = s.Department.Name,
-                    IsDelete = s.IsDelete,
+                    CreateUserID = s.CreateUserID,
                     CreateDate = s.CreateDate,
                     ModifyDate = s.ModifyDate,
-                    CreateUserId = s.CreateUserId
+                    IsDeleted = s.IsDeleted,
+                    FinalEnt = s.FinalEnt,
+                    BaCreatedTime = s.BaCreatedTime,
+                    BaGuid = s.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
 
-    // ===== GET SCOPE BY ID QUERY =====
-    public record GetScopeByIdQuery(int Id) : IRequest<ScopeDto?>;
+    public record GetScopeByIdQuery(long Id) : IRequest<ScopeDto?>;
 
     public class GetScopeByIdQueryHandler : IRequestHandler<GetScopeByIdQuery, ScopeDto?>
     {
@@ -73,24 +81,26 @@ namespace Application.CQRS
         {
             return await _context.Scopes
                 .Include(s => s.Department)
-                .Where(s => s.Id == request.Id && !s.IsDelete)
+                .Where(s => s.Id == request.Id && s.IsDeleted != true)
                 .Select(s => new ScopeDto
                 {
                     Id = s.Id,
                     Name = s.Name,
                     DepartmentId = s.DepartmentId,
                     DepartmentName = s.Department.Name,
-                    IsDelete = s.IsDelete,
+                    CreateUserID = s.CreateUserID,
                     CreateDate = s.CreateDate,
                     ModifyDate = s.ModifyDate,
-                    CreateUserId = s.CreateUserId
+                    IsDeleted = s.IsDeleted,
+                    FinalEnt = s.FinalEnt,
+                    BaCreatedTime = s.BaCreatedTime,
+                    BaGuid = s.BaGuid
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
     }
 
-    // ===== GET SCOPES BY DEPARTMENT ID QUERY =====
-    public record GetScopesByDepartmentIdQuery(int DepartmentId) : IRequest<List<ScopeSimpleDto>>;
+    public record GetScopesByDepartmentIdQuery(long DepartmentId) : IRequest<List<ScopeSimpleDto>>;
 
     public class GetScopesByDepartmentIdQueryHandler : IRequestHandler<GetScopesByDepartmentIdQuery, List<ScopeSimpleDto>>
     {
@@ -104,7 +114,7 @@ namespace Application.CQRS
         public async Task<List<ScopeSimpleDto>> Handle(GetScopesByDepartmentIdQuery request, CancellationToken cancellationToken)
         {
             return await _context.Scopes
-                .Where(s => s.DepartmentId == request.DepartmentId && !s.IsDelete)
+                .Where(s => s.DepartmentId == request.DepartmentId && s.IsDeleted != true)
                 .OrderBy(s => s.Name)
                 .Select(s => new ScopeSimpleDto
                 {
@@ -115,7 +125,6 @@ namespace Application.CQRS
         }
     }
 
-    // ===== GET ACTIVE SCOPES QUERY =====
     public record GetActiveScopesQuery : IRequest<List<ScopeDto>>;
 
     public class GetActiveScopesQueryHandler : IRequestHandler<GetActiveScopesQuery, List<ScopeDto>>
@@ -131,7 +140,7 @@ namespace Application.CQRS
         {
             return await _context.Scopes
                 .Include(s => s.Department)
-                .Where(s => !s.IsDelete)
+                .Where(s => s.IsDeleted != true)
                 .OrderBy(s => s.Department.Name)
                 .ThenBy(s => s.Name)
                 .Select(s => new ScopeDto
@@ -140,43 +149,19 @@ namespace Application.CQRS
                     Name = s.Name,
                     DepartmentId = s.DepartmentId,
                     DepartmentName = s.Department.Name,
-                    IsDelete = s.IsDelete,
+                    CreateUserID = s.CreateUserID,
                     CreateDate = s.CreateDate,
                     ModifyDate = s.ModifyDate,
-                    CreateUserId = s.CreateUserId
+                    IsDeleted = s.IsDeleted,
+                    FinalEnt = s.FinalEnt,
+                    BaCreatedTime = s.BaCreatedTime,
+                    BaGuid = s.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
 
-    // ===== GET ACTIVE SCOPES BY DEPARTMENT QUERY =====
-    public record GetActiveScopesByDepartmentQuery(int DepartmentId) : IRequest<List<ScopeSimpleDto>>;
-
-    public class GetActiveScopesByDepartmentQueryHandler : IRequestHandler<GetActiveScopesByDepartmentQuery, List<ScopeSimpleDto>>
-    {
-        private readonly DarooDbContext _context;
-
-        public GetActiveScopesByDepartmentQueryHandler(DarooDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<List<ScopeSimpleDto>> Handle(GetActiveScopesByDepartmentQuery request, CancellationToken cancellationToken)
-        {
-            return await _context.Scopes
-                .Where(s => s.DepartmentId == request.DepartmentId && !s.IsDelete)
-                .OrderBy(s => s.Name)
-                .Select(s => new ScopeSimpleDto
-                {
-                    Id = s.Id,
-                    Name = s.Name
-                })
-                .ToListAsync(cancellationToken);
-        }
-    }
-
-    // ===== SEARCH SCOPES QUERY =====
-    public record SearchScopesQuery(string SearchTerm, int? DepartmentId = null) : IRequest<List<ScopeDto>>;
+    public record SearchScopesQuery(string SearchTerm, long? DepartmentId = null) : IRequest<List<ScopeDto>>;
 
     public class SearchScopesQueryHandler : IRequestHandler<SearchScopesQuery, List<ScopeDto>>
     {
@@ -191,7 +176,7 @@ namespace Application.CQRS
         {
             var query = _context.Scopes
                 .Include(s => s.Department)
-                .Where(s => !s.IsDelete);
+                .Where(s => s.IsDeleted != true);
 
             // اعمال فیلتر جستجو
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -214,12 +199,16 @@ namespace Application.CQRS
                     Name = s.Name,
                     DepartmentId = s.DepartmentId,
                     DepartmentName = s.Department.Name,
-                    IsDelete = s.IsDelete,
+                    CreateUserID = s.CreateUserID,
                     CreateDate = s.CreateDate,
                     ModifyDate = s.ModifyDate,
-                    CreateUserId = s.CreateUserId
+                    IsDeleted = s.IsDeleted,
+                    FinalEnt = s.FinalEnt,
+                    BaCreatedTime = s.BaCreatedTime,
+                    BaGuid = s.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
+
 }

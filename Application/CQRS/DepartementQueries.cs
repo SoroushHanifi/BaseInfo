@@ -1,5 +1,6 @@
 ﻿using Application.Common;
 using Domain.Entities.Daroo;
+using FluentValidation;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,18 +12,25 @@ using System.Threading.Tasks;
 
 namespace Application.CQRS
 {
-    // ===== DTOs =====
+    // ===== DEPARTMENT DTOs =====
     public class DepartmentDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string CreateUserId { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
-        public bool IsDelete { get; set; }
-    }
+        public int? CreateUserID { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? ModifyDate { get; set; }
+        public bool? IsDeleted { get; set; }
+        public int FinalEnt { get; set; }
+        public long BaCreatedTime { get; set; }
+        public Guid BaGuid { get; set; }
 
-    // ===== GetAll Query =====
+        public DateTime? BaCreatedDateTime => BaCreatedTime > 0
+            ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(BaCreatedTime)
+            : null;
+    }
+    // ===== DEPARTMENT QUERIES =====
+
     public record GetAllDepartmentsQuery : IRequest<List<DepartmentDto>>;
 
     public class GetAllDepartmentsQueryHandler : IRequestHandler<GetAllDepartmentsQuery, List<DepartmentDto>>
@@ -37,75 +45,25 @@ namespace Application.CQRS
         public async Task<List<DepartmentDto>> Handle(GetAllDepartmentsQuery request, CancellationToken cancellationToken)
         {
             return await _context.Departments
-                .Where(d => !d.IsDelete)
+                .Where(d => d.IsDeleted != true)
+                .OrderBy(d => d.Name)
                 .Select(d => new DepartmentDto
                 {
                     Id = d.Id,
                     Name = d.Name,
-                    CreateDate = d.CreateDate,
-                    ModifyDate = d.ModifyDate
-                })
-                .ToListAsync(cancellationToken);
-        }
-    }
-    public record GetAllDepartmentsPaginationQuery(int PageIndex = 1, int PageSize = 10) : IRequest<PagedData<DepartmentDto>>;
-
-    public class GetAllDepartmentsPaginationQueryHandler : IRequestHandler<GetAllDepartmentsPaginationQuery, PagedData<DepartmentDto>>
-    {
-        private readonly DarooDbContext _context;
-
-        public GetAllDepartmentsPaginationQueryHandler(DarooDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<PagedData<DepartmentDto>> Handle(GetAllDepartmentsPaginationQuery request, CancellationToken cancellationToken)
-        {
-            // تنظیم مقادیر پیش‌فرض
-            int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
-            int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
-
-            // دریافت تعداد کل رکوردها
-            int totalCount = await _context.Departments
-                .Where(d => !d.IsDelete)
-                .CountAsync(cancellationToken);
-
-            // محاسبه تعداد صفحات
-            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-            // دریافت داده‌های صفحه‌بندی‌شده
-            var items = await _context.Departments
-                .Where(d => !d.IsDelete)
-                .OrderBy(d => d.Name) // مرتب‌سازی بر اساس نام (اختیاری)
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .Select(d => new DepartmentDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    CreateUserId = d.CreateUserId,
+                    CreateUserID = d.CreateUserID,
                     CreateDate = d.CreateDate,
                     ModifyDate = d.ModifyDate,
-                    IsDelete = d.IsDelete
+                    IsDeleted = d.IsDeleted,
+                    FinalEnt = d.FinalEnt,
+                    BaCreatedTime = d.BaCreatedTime,
+                    BaGuid = d.BaGuid
                 })
                 .ToListAsync(cancellationToken);
-
-            return new PagedData<DepartmentDto>
-            {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                TotalCount = totalCount,
-                TotalPages = totalPages,
-                IndexFrom = (pageIndex - 1) * pageSize,
-                Items = items,
-                HasPreviousPage = pageIndex > 1,
-                HasNextPage = pageIndex < totalPages
-            };
         }
     }
 
-    // ===== GetById Query =====
-    public record GetDepartmentByIdQuery(int Id) : IRequest<DepartmentDto?>;
+    public record GetDepartmentByIdQuery(long Id) : IRequest<DepartmentDto?>;
 
     public class GetDepartmentByIdQueryHandler : IRequestHandler<GetDepartmentByIdQuery, DepartmentDto?>
     {
@@ -119,20 +77,23 @@ namespace Application.CQRS
         public async Task<DepartmentDto?> Handle(GetDepartmentByIdQuery request, CancellationToken cancellationToken)
         {
             return await _context.Departments
-                .Where(d => d.Id == request.Id && !d.IsDelete)
+                .Where(d => d.Id == request.Id && d.IsDeleted != true)
                 .Select(d => new DepartmentDto
                 {
                     Id = d.Id,
                     Name = d.Name,
+                    CreateUserID = d.CreateUserID,
                     CreateDate = d.CreateDate,
                     ModifyDate = d.ModifyDate,
-                    IsDelete = d.IsDelete
+                    IsDeleted = d.IsDeleted,
+                    FinalEnt = d.FinalEnt,
+                    BaCreatedTime = d.BaCreatedTime,
+                    BaGuid = d.BaGuid
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
     }
 
-    // ===== GetActive Query (اختیاری - فقط رکوردهای فعال) =====
     public record GetActiveDepartmentsQuery : IRequest<List<DepartmentDto>>;
 
     public class GetActiveDepartmentsQueryHandler : IRequestHandler<GetActiveDepartmentsQuery, List<DepartmentDto>>
@@ -147,43 +108,48 @@ namespace Application.CQRS
         public async Task<List<DepartmentDto>> Handle(GetActiveDepartmentsQuery request, CancellationToken cancellationToken)
         {
             return await _context.Departments
-                .Where(d => !d.IsDelete)
-                .OrderBy(d => d.Id)
+                .Where(d => d.IsDeleted != true)
+                .OrderBy(d => d.Name)
                 .Select(d => new DepartmentDto
                 {
                     Id = d.Id,
                     Name = d.Name,
+                    CreateUserID = d.CreateUserID,
                     CreateDate = d.CreateDate,
                     ModifyDate = d.ModifyDate,
-                    IsDelete = d.IsDelete
+                    IsDeleted = d.IsDeleted,
+                    FinalEnt = d.FinalEnt,
+                    BaCreatedTime = d.BaCreatedTime,
+                    BaGuid = d.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
 
-    public record GetActiveDepartmentsPaginationQuery(int PageIndex = 1, int PageSize = 10) : IRequest<PagedData<DepartmentDto>>;
-    public class GetActiveDepartmentsPaginationQueryHandler : IRequestHandler<GetActiveDepartmentsPaginationQuery, PagedData<DepartmentDto>>
+    public record GetAllDepartmentsPaginationQuery(int PageIndex = 1, int PageSize = 10) : IRequest<PagedData<DepartmentDto>>;
+
+    public class GetAllDepartmentsPaginationQueryHandler : IRequestHandler<GetAllDepartmentsPaginationQuery, PagedData<DepartmentDto>>
     {
         private readonly DarooDbContext _context;
 
-        public GetActiveDepartmentsPaginationQueryHandler(DarooDbContext context)
+        public GetAllDepartmentsPaginationQueryHandler(DarooDbContext context)
         {
             _context = context;
         }
 
-        public async Task<PagedData<DepartmentDto>> Handle(GetActiveDepartmentsPaginationQuery request, CancellationToken cancellationToken)
+        public async Task<PagedData<DepartmentDto>> Handle(GetAllDepartmentsPaginationQuery request, CancellationToken cancellationToken)
         {
             int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
             int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
             int totalCount = await _context.Departments
-                .Where(d => !d.IsDelete)
+                .Where(d => d.IsDeleted != true)
                 .CountAsync(cancellationToken);
 
             int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             var items = await _context.Departments
-                .Where(d => !d.IsDelete)
+                .Where(d => d.IsDeleted != true)
                 .OrderBy(d => d.Name)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -191,10 +157,13 @@ namespace Application.CQRS
                 {
                     Id = d.Id,
                     Name = d.Name,
-                    CreateUserId = d.CreateUserId,
+                    CreateUserID = d.CreateUserID,
                     CreateDate = d.CreateDate,
                     ModifyDate = d.ModifyDate,
-                    IsDelete = d.IsDelete
+                    IsDeleted = d.IsDeleted,
+                    FinalEnt = d.FinalEnt,
+                    BaCreatedTime = d.BaCreatedTime,
+                    BaGuid = d.BaGuid
                 })
                 .ToListAsync(cancellationToken);
 
@@ -209,6 +178,61 @@ namespace Application.CQRS
                 HasPreviousPage = pageIndex > 1,
                 HasNextPage = pageIndex < totalPages
             };
+        }
+    }
+
+    public record SearchDepartmentsQuery(string SearchTerm) : IRequest<List<DepartmentDto>>;
+
+    public class SearchDepartmentsQueryHandler : IRequestHandler<SearchDepartmentsQuery, List<DepartmentDto>>
+    {
+        private readonly DarooDbContext _context;
+
+        public SearchDepartmentsQueryHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<DepartmentDto>> Handle(SearchDepartmentsQuery request, CancellationToken cancellationToken)
+        {
+            var query = _context.Departments
+                .Where(d => d.IsDeleted != true);
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                query = query.Where(d => d.Name.Contains(request.SearchTerm));
+            }
+
+            return await query
+                .OrderBy(d => d.Name)
+                .Select(d => new DepartmentDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    CreateUserID = d.CreateUserID,
+                    CreateDate = d.CreateDate,
+                    ModifyDate = d.ModifyDate,
+                    IsDeleted = d.IsDeleted,
+                    FinalEnt = d.FinalEnt,
+                    BaCreatedTime = d.BaCreatedTime,
+                    BaGuid = d.BaGuid
+                })
+                .ToListAsync(cancellationToken);
+        }
+    }
+
+    
+
+    public class UpdateDepartmentValidator : AbstractValidator<UpdateDepartmentCommand>
+    {
+        public UpdateDepartmentValidator()
+        {
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("شناسه اداره کل باید عددی مثبت باشد");
+
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("نام اداره کل الزامی است")
+                .MinimumLength(2).WithMessage("نام اداره کل باید حداقل 2 کاراکتر باشد")
+                .MaximumLength(50).WithMessage("نام اداره کل نباید بیشتر از 50 کاراکتر باشد");
         }
     }
 }

@@ -16,15 +16,6 @@ namespace Domain.Entities.Daroo
         [Column("idDepartment")]
         public long Id { get; set; }
 
-        [Column("finalEnt")]
-        public int FinalEnt { get; set; } = 10008;
-
-        [Column("baCreatedTime")]
-        public long BaCreatedTime { get; set; }
-
-        [Column("baGuid")]
-        public Guid BaGuid { get; set; } = Guid.NewGuid();
-
         [Column("Name")]
         [MaxLength(50)]
         public string? Name { get; set; }
@@ -32,17 +23,13 @@ namespace Domain.Entities.Daroo
         [Column("CreateUserID")]
         public int? CreateUserID { get; set; }
 
-        [Column("CreateDate")]
-        public DateTime? CreateDate { get; set; }
-
-        [Column("ModifyDate")]
-        public DateTime? ModifyDate { get; set; }
-
-        [Column("IsDeleted")]
-        public bool? IsDeleted { get; set; }
-
         // Navigation Properties
         public virtual ICollection<Scope> Scopes { get; set; } = new List<Scope>();
-    }
 
+        public override void PrepareForCreation()
+        {
+            FinalEnt = 10008;
+            base.PrepareForCreation();
+        }
+    }
 }

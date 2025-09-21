@@ -15,14 +15,15 @@ namespace Application.CQRS
 {
     // ===== CREATE COMMAND =====
     public record CreateMainTitleCommand(
-        string Name,
-        string? Description,
-        decimal Amount,
-        int ScopeId,
-        int DisplayOrder = 0
-    ) : IRequest<int>;
+         string Name,
+         string? Description,
+         decimal Amount,
+         long ScopeId,
+         string? DisplayOrder = "0",
+         long? BpmType = null
+     ) : IRequest<long>;
 
-    public class CreateMainTitleCommandHandler : IRequestHandler<CreateMainTitleCommand, int>
+    public class CreateMainTitleCommandHandler : IRequestHandler<CreateMainTitleCommand, long>
     {
         private readonly DarooDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -44,11 +45,11 @@ namespace Application.CQRS
             _appSettingsOption = appSettingOption.Value;
         }
 
-        public async Task<int> Handle(CreateMainTitleCommand request, CancellationToken cancellationToken)
+        public async Task<long> Handle(CreateMainTitleCommand request, CancellationToken cancellationToken)
         {
             // بررسی وجود حوزه
             var scopeExists = await _context.Scopes
-                .AnyAsync(s => s.Id == request.ScopeId && !s.IsDelete, cancellationToken);
+                .AnyAsync(s => s.Id == request.ScopeId && s.IsDeleted != true, cancellationToken);
 
             if (!scopeExists)
                 throw new AppException("حوزه مورد نظر یافت نشد");
@@ -56,8 +57,8 @@ namespace Application.CQRS
             // بررسی تکراری نبودن نام در همین حوزه
             var nameExists = await _context.MainTitles
                 .AnyAsync(mt => mt.Name == request.Name &&
-                               mt.ScopeId == request.ScopeId &&
-                               !mt.IsDelete, cancellationToken);
+                               mt.ScopesId == request.ScopeId &&
+                               mt.IsDeleted != true, cancellationToken);
 
             if (nameExists)
                 throw new AppException("نام عنوان اصلی در این حوزه تکراری است");
@@ -78,12 +79,13 @@ namespace Application.CQRS
                 Name = request.Name,
                 Description = request.Description,
                 Amount = request.Amount,
-                ScopeId = request.ScopeId,
+                ScopesId = request.ScopeId,
                 DisplayOrder = request.DisplayOrder,
-                CreateUserId = result.Data.NationalCode,
-                CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now
+                BpmType = request.BpmType,
+                CreateUserID = long.Parse(result.Data.NationalCode)
             };
+
+            mainTitle.PrepareForCreation();
 
             _context.MainTitles.Add(mainTitle);
             await _context.SaveChangesAsync(cancellationToken);
@@ -92,13 +94,13 @@ namespace Application.CQRS
         }
     }
 
-    // ===== UPDATE COMMAND =====
     public record UpdateMainTitleCommand(
-        int Id,
+        long Id,
         string Name,
         string? Description,
         decimal Amount,
-        int DisplayOrder
+        string? DisplayOrder,
+        long? BpmType = null
     ) : IRequest<bool>;
 
     public class UpdateMainTitleCommandHandler : IRequestHandler<UpdateMainTitleCommand, bool>
@@ -113,7 +115,7 @@ namespace Application.CQRS
         public async Task<bool> Handle(UpdateMainTitleCommand request, CancellationToken cancellationToken)
         {
             var mainTitle = await _context.MainTitles
-                .FirstOrDefaultAsync(mt => mt.Id == request.Id && !mt.IsDelete, cancellationToken);
+                .FirstOrDefaultAsync(mt => mt.Id == request.Id && mt.IsDeleted != true, cancellationToken);
 
             if (mainTitle == null)
                 return false;
@@ -121,9 +123,9 @@ namespace Application.CQRS
             // بررسی تکراری نبودن نام در همین حوزه (جز خودش)
             var nameExists = await _context.MainTitles
                 .AnyAsync(mt => mt.Name == request.Name &&
-                               mt.ScopeId == mainTitle.ScopeId &&
+                               mt.ScopesId == mainTitle.ScopesId &&
                                mt.Id != request.Id &&
-                               !mt.IsDelete, cancellationToken);
+                               mt.IsDeleted != true, cancellationToken);
 
             if (nameExists)
                 throw new AppException("نام عنوان اصلی در این حوزه تکراری است");
@@ -136,7 +138,8 @@ namespace Application.CQRS
             mainTitle.Description = request.Description;
             mainTitle.Amount = request.Amount;
             mainTitle.DisplayOrder = request.DisplayOrder;
-            mainTitle.ModifyDate = DateTime.Now;
+            mainTitle.BpmType = request.BpmType;
+            mainTitle.PrepareForUpdate();
 
             _context.MainTitles.Update(mainTitle);
             await _context.SaveChangesAsync(cancellationToken);
@@ -144,8 +147,7 @@ namespace Application.CQRS
         }
     }
 
-    // ===== DELETE COMMAND (Soft Delete) =====
-    public record DeleteMainTitleCommand(int Id) : IRequest<bool>;
+    public record DeleteMainTitleCommand(long Id) : IRequest<bool>;
 
     public class DeleteMainTitleCommandHandler : IRequestHandler<DeleteMainTitleCommand, bool>
     {
@@ -159,13 +161,12 @@ namespace Application.CQRS
         public async Task<bool> Handle(DeleteMainTitleCommand request, CancellationToken cancellationToken)
         {
             var mainTitle = await _context.MainTitles
-                .FirstOrDefaultAsync(mt => mt.Id == request.Id && !mt.IsDelete, cancellationToken);
+                .FirstOrDefaultAsync(mt => mt.Id == request.Id && mt.IsDeleted != true, cancellationToken);
 
             if (mainTitle == null)
                 return false;
 
-            mainTitle.IsDelete = true;
-            mainTitle.ModifyDate = DateTime.Now;
+            mainTitle.SoftDelete();
 
             _context.MainTitles.Update(mainTitle);
             await _context.SaveChangesAsync(cancellationToken);
@@ -173,107 +174,6 @@ namespace Application.CQRS
         }
     }
 
-    // ===== UPDATE DISPLAY ORDER COMMAND =====
-    public record UpdateMainTitleDisplayOrderCommand(int Id, int DisplayOrder) : IRequest<bool>;
-
-    public class UpdateMainTitleDisplayOrderCommandHandler : IRequestHandler<UpdateMainTitleDisplayOrderCommand, bool>
-    {
-        private readonly DarooDbContext _context;
-
-        public UpdateMainTitleDisplayOrderCommandHandler(DarooDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<bool> Handle(UpdateMainTitleDisplayOrderCommand request, CancellationToken cancellationToken)
-        {
-            var mainTitle = await _context.MainTitles
-                .FirstOrDefaultAsync(mt => mt.Id == request.Id && !mt.IsDelete, cancellationToken);
-
-            if (mainTitle == null)
-                return false;
-
-            mainTitle.DisplayOrder = request.DisplayOrder;
-            mainTitle.ModifyDate = DateTime.Now;
-
-            _context.MainTitles.Update(mainTitle);
-            await _context.SaveChangesAsync(cancellationToken);
-            return true;
-        }
-    }
-
-    // ===== BULK UPDATE DISPLAY ORDER COMMAND =====
-    public record BulkUpdateMainTitleDisplayOrderCommand(List<MainTitleDisplayOrderItem> Items) : IRequest<bool>;
-
-    public class MainTitleDisplayOrderItem
-    {
-        public int Id { get; set; }
-        public int DisplayOrder { get; set; }
-    }
-
-    public class BulkUpdateMainTitleDisplayOrderCommandHandler : IRequestHandler<BulkUpdateMainTitleDisplayOrderCommand, bool>
-    {
-        private readonly DarooDbContext _context;
-
-        public BulkUpdateMainTitleDisplayOrderCommandHandler(DarooDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<bool> Handle(BulkUpdateMainTitleDisplayOrderCommand request, CancellationToken cancellationToken)
-        {
-            if (!request.Items.Any())
-                return false;
-
-            var ids = request.Items.Select(x => x.Id).ToList();
-            var mainTitles = await _context.MainTitles
-                .Where(mt => ids.Contains(mt.Id) && !mt.IsDelete)
-                .ToListAsync(cancellationToken);
-
-            if (!mainTitles.Any())
-                return false;
-
-            foreach (var mainTitle in mainTitles)
-            {
-                var orderItem = request.Items.FirstOrDefault(x => x.Id == mainTitle.Id);
-                if (orderItem != null)
-                {
-                    mainTitle.DisplayOrder = orderItem.DisplayOrder;
-                    mainTitle.ModifyDate = DateTime.Now;
-                }
-            }
-
-            _context.MainTitles.UpdateRange(mainTitles);
-            await _context.SaveChangesAsync(cancellationToken);
-            return true;
-        }
-    }
-
-    // ===== VALIDATORS =====
-    public class CreateMainTitleValidator : AbstractValidator<CreateMainTitleCommand>
-    {
-        public CreateMainTitleValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("نام عنوان اصلی الزامی است")
-                .MinimumLength(2).WithMessage("نام عنوان اصلی باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(300).WithMessage("نام عنوان اصلی نباید بیشتر از 300 کاراکتر باشد");
-
-            RuleFor(x => x.Description)
-                .MaximumLength(1000).WithMessage("توضیحات نباید بیشتر از 1000 کاراکتر باشد")
-                .When(x => !string.IsNullOrWhiteSpace(x.Description));
-
-            RuleFor(x => x.Amount)
-                .GreaterThanOrEqualTo(0).WithMessage("مبلغ نمی‌تواند منفی باشد")
-                .ScalePrecision(2, 18).WithMessage("مبلغ باید حداکثر 18 رقم کل و 2 رقم اعشار داشته باشد");
-
-            RuleFor(x => x.ScopeId)
-                .GreaterThan(0).WithMessage("شناسه حوزه باید عددی مثبت باشد");
-
-            RuleFor(x => x.DisplayOrder)
-                .GreaterThanOrEqualTo(0).WithMessage("ترتیب نمایش نمی‌تواند منفی باشد");
-        }
-    }
 
     public class UpdateMainTitleValidator : AbstractValidator<UpdateMainTitleCommand>
     {
@@ -285,18 +185,18 @@ namespace Application.CQRS
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("نام عنوان اصلی الزامی است")
                 .MinimumLength(2).WithMessage("نام عنوان اصلی باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(300).WithMessage("نام عنوان اصلی نباید بیشتر از 300 کاراکتر باشد");
+                .MaximumLength(50).WithMessage("نام عنوان اصلی نباید بیشتر از 50 کاراکتر باشد");
 
             RuleFor(x => x.Description)
-                .MaximumLength(1000).WithMessage("توضیحات نباید بیشتر از 1000 کاراکتر باشد")
+                .MaximumLength(150).WithMessage("توضیحات نباید بیشتر از 150 کاراکتر باشد")
                 .When(x => !string.IsNullOrWhiteSpace(x.Description));
 
             RuleFor(x => x.Amount)
-                .GreaterThanOrEqualTo(0).WithMessage("مبلغ نمی‌تواند منفی باشد")
-                .ScalePrecision(2, 18).WithMessage("مبلغ باید حداکثر 18 رقم کل و 2 رقم اعشار داشته باشد");
+                .GreaterThanOrEqualTo(0).WithMessage("مبلغ نمی‌تواند منفی باشد");
 
             RuleFor(x => x.DisplayOrder)
-                .GreaterThanOrEqualTo(0).WithMessage("ترتیب نمایش نمی‌تواند منفی باشد");
+                .MaximumLength(50).WithMessage("ترتیب نمایش نباید بیشتر از 50 کاراکتر باشد")
+                .When(x => !string.IsNullOrWhiteSpace(x.DisplayOrder));
         }
     }
 }

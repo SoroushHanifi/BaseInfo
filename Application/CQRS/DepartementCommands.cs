@@ -1,4 +1,5 @@
-﻿using Application.OptionPatternModel;
+﻿using Application.Common;
+using Application.OptionPatternModel;
 using Application.Refits;
 using Domain;
 using Domain.Entities.Daroo;
@@ -8,12 +9,15 @@ using Infrastructure.Exceptions;
 using Infrastructure.Utility;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Refit;
 
 namespace Application.CQRS
 {
-    // ===== CREATE COMMAND =====
+    
+
+    // ===== DEPARTMENT COMMANDS =====
+
     public record CreateDepartmentCommand(string Name) : IRequest<long>;
 
     public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, long>
@@ -49,16 +53,10 @@ namespace Application.CQRS
             var department = new Department
             {
                 Name = request.Name,
-                CreateUserID = int.Parse(result.Data.NationalCode), // Convert to int
-                CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now,
-                FinalEnt = 10008, // Bizagi default
-                BaGuid = Guid.NewGuid(),
-                IsDeleted = false
+                CreateUserID = int.Parse(result.Data.NationalCode)
             };
 
-            // Set BaCreatedTime to current Unix timestamp in milliseconds
-            department.SetBaCreatedTimeToNow();
+            department.PrepareForCreation(); // از base class استفاده می‌کنیم
 
             _context.Departments.Add(department);
             await _context.SaveChangesAsync(cancellationToken);
@@ -67,7 +65,6 @@ namespace Application.CQRS
         }
     }
 
-    // ===== UPDATE COMMAND =====
     public record UpdateDepartmentCommand(long Id, string Name) : IRequest<bool>;
 
     public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand, bool>
@@ -87,7 +84,7 @@ namespace Application.CQRS
                 return false;
 
             department.Name = request.Name;
-            department.ModifyDate = DateTime.Now;
+            department.PrepareForUpdate(); // از base class استفاده می‌کنیم
 
             _context.Departments.Update(department);
             await _context.SaveChangesAsync(cancellationToken);
@@ -95,7 +92,6 @@ namespace Application.CQRS
         }
     }
 
-    // ===== DELETE COMMAND (Soft Delete) =====
     public record DeleteDepartmentCommand(long Id) : IRequest<bool>;
 
     public class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand, bool>
@@ -114,8 +110,7 @@ namespace Application.CQRS
             if (department == null || department.IsDeleted == true)
                 return false;
 
-            department.IsDeleted = true;
-            department.ModifyDate = DateTime.Now;
+            department.SoftDelete(); // از base class استفاده می‌کنیم
 
             _context.Departments.Update(department);
             await _context.SaveChangesAsync(cancellationToken);
@@ -131,21 +126,7 @@ namespace Application.CQRS
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("نام اداره کل الزامی است")
                 .MinimumLength(2).WithMessage("نام اداره کل باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(50).WithMessage("نام اداره کل نباید بیشتر از 50 کاراکتر باشد"); // Updated to match Bizagi limit
-        }
-    }
-
-    public class UpdateDepartmentValidator : AbstractValidator<UpdateDepartmentCommand>
-    {
-        public UpdateDepartmentValidator()
-        {
-            RuleFor(x => x.Id)
-                .GreaterThan(0).WithMessage("شناسه اداره کل باید عددی مثبت باشد");
-
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("نام اداره کل الزامی است")
-                .MinimumLength(2).WithMessage("نام اداره کل باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(50).WithMessage("نام اداره کل نباید بیشتر از 50 کاراکتر باشد"); // Updated to match Bizagi limit
+                .MaximumLength(50).WithMessage("نام اداره کل نباید بیشتر از 50 کاراکتر باشد");
         }
     }
 }

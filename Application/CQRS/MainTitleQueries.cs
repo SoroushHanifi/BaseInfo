@@ -7,32 +7,40 @@ namespace Application.CQRS
     // ===== DTOs =====
     public class MainTitleDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public decimal Amount { get; set; }
-        public int ScopeId { get; set; }
+        public decimal? Amount { get; set; }
+        public long? ScopesId { get; set; }
         public string ScopeName { get; set; } = string.Empty;
-        public int DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
         public string DepartmentName { get; set; } = string.Empty;
-        public int DisplayOrder { get; set; }
-        public bool IsDelete { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
-        public string CreateUserId { get; set; } = string.Empty;
+        public string? DisplayOrder { get; set; }
+        public long? BpmType { get; set; }
+        public long? CreateUserID { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? ModifyDate { get; set; }
+        public bool? IsDeleted { get; set; }
+        public int FinalEnt { get; set; }
+        public long BaCreatedTime { get; set; }
+        public Guid BaGuid { get; set; }
+
+        public DateTime? BaCreatedDateTime => BaCreatedTime > 0
+            ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(BaCreatedTime)
+            : null;
     }
 
     public class MainTitleSimpleDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public int DisplayOrder { get; set; }
+        public decimal? Amount { get; set; }
+        public string? DisplayOrder { get; set; }
     }
 
     public class MainTitleSummaryDto
     {
-        public int ScopeId { get; set; }
+        public long ScopeId { get; set; }
         public string ScopeName { get; set; } = string.Empty;
         public int TotalCount { get; set; }
         public decimal TotalAmount { get; set; }
@@ -58,7 +66,7 @@ namespace Application.CQRS
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
-                .Where(mt => !mt.IsDelete)
+                .Where(mt => mt.IsDeleted != true)
                 .OrderBy(mt => mt.Scope.Department.Name)
                 .ThenBy(mt => mt.Scope.Name)
                 .ThenBy(mt => mt.DisplayOrder)
@@ -69,22 +77,25 @@ namespace Application.CQRS
                     Name = mt.Name,
                     Description = mt.Description,
                     Amount = mt.Amount,
-                    ScopeId = mt.ScopeId,
+                    ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
-                    IsDelete = mt.IsDelete,
+                    BpmType = mt.BpmType,
+                    CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
-                    CreateUserId = mt.CreateUserId
+                    IsDeleted = mt.IsDeleted,
+                    FinalEnt = mt.FinalEnt,
+                    BaCreatedTime = mt.BaCreatedTime,
+                    BaGuid = mt.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
 
-    // ===== GET MAIN TITLE BY ID QUERY =====
-    public record GetMainTitleByIdQuery(int Id) : IRequest<MainTitleDto?>;
+    public record GetMainTitleByIdQuery(long Id) : IRequest<MainTitleDto?>;
 
     public class GetMainTitleByIdQueryHandler : IRequestHandler<GetMainTitleByIdQuery, MainTitleDto?>
     {
@@ -100,29 +111,32 @@ namespace Application.CQRS
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
-                .Where(mt => mt.Id == request.Id && !mt.IsDelete)
+                .Where(mt => mt.Id == request.Id && mt.IsDeleted != true)
                 .Select(mt => new MainTitleDto
                 {
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
                     Amount = mt.Amount,
-                    ScopeId = mt.ScopeId,
+                    ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
-                    IsDelete = mt.IsDelete,
+                    BpmType = mt.BpmType,
+                    CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
-                    CreateUserId = mt.CreateUserId
+                    IsDeleted = mt.IsDeleted,
+                    FinalEnt = mt.FinalEnt,
+                    BaCreatedTime = mt.BaCreatedTime,
+                    BaGuid = mt.BaGuid
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
     }
 
-    // ===== GET MAIN TITLES BY SCOPE QUERY =====
-    public record GetMainTitlesByScopeQuery(int ScopeId) : IRequest<List<MainTitleSimpleDto>>;
+    public record GetMainTitlesByScopeQuery(long ScopeId) : IRequest<List<MainTitleSimpleDto>>;
 
     public class GetMainTitlesByScopeQueryHandler : IRequestHandler<GetMainTitlesByScopeQuery, List<MainTitleSimpleDto>>
     {
@@ -136,7 +150,7 @@ namespace Application.CQRS
         public async Task<List<MainTitleSimpleDto>> Handle(GetMainTitlesByScopeQuery request, CancellationToken cancellationToken)
         {
             return await _context.MainTitles
-                .Where(mt => mt.ScopeId == request.ScopeId && !mt.IsDelete)
+                .Where(mt => mt.ScopesId == request.ScopeId && mt.IsDeleted != true)
                 .OrderBy(mt => mt.DisplayOrder)
                 .ThenBy(mt => mt.Name)
                 .Select(mt => new MainTitleSimpleDto
@@ -150,8 +164,7 @@ namespace Application.CQRS
         }
     }
 
-    // ===== GET MAIN TITLES BY DEPARTMENT QUERY =====
-    public record GetMainTitlesByDepartmentQuery(int DepartmentId) : IRequest<List<MainTitleDto>>;
+    public record GetMainTitlesByDepartmentQuery(long DepartmentId) : IRequest<List<MainTitleDto>>;
 
     public class GetMainTitlesByDepartmentQueryHandler : IRequestHandler<GetMainTitlesByDepartmentQuery, List<MainTitleDto>>
     {
@@ -167,7 +180,7 @@ namespace Application.CQRS
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
-                .Where(mt => mt.Scope.DepartmentId == request.DepartmentId && !mt.IsDelete)
+                .Where(mt => mt.Scope.DepartmentId == request.DepartmentId && mt.IsDeleted != true)
                 .OrderBy(mt => mt.Scope.Name)
                 .ThenBy(mt => mt.DisplayOrder)
                 .ThenBy(mt => mt.Name)
@@ -177,25 +190,28 @@ namespace Application.CQRS
                     Name = mt.Name,
                     Description = mt.Description,
                     Amount = mt.Amount,
-                    ScopeId = mt.ScopeId,
+                    ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
-                    IsDelete = mt.IsDelete,
+                    BpmType = mt.BpmType,
+                    CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
-                    CreateUserId = mt.CreateUserId
+                    IsDeleted = mt.IsDeleted,
+                    FinalEnt = mt.FinalEnt,
+                    BaCreatedTime = mt.BaCreatedTime,
+                    BaGuid = mt.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
 
-    // ===== SEARCH MAIN TITLES QUERY =====
     public record SearchMainTitlesQuery(
         string? SearchTerm = null,
-        int? ScopeId = null,
-        int? DepartmentId = null,
+        long? ScopeId = null,
+        long? DepartmentId = null,
         decimal? MinAmount = null,
         decimal? MaxAmount = null
     ) : IRequest<List<MainTitleDto>>;
@@ -214,7 +230,7 @@ namespace Application.CQRS
             var query = _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
-                .Where(mt => !mt.IsDelete);
+                .Where(mt => mt.IsDeleted != true);
 
             // فیلتر جستجوی متنی
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -231,7 +247,7 @@ namespace Application.CQRS
             // فیلتر حوزه
             if (request.ScopeId.HasValue)
             {
-                query = query.Where(mt => mt.ScopeId == request.ScopeId.Value);
+                query = query.Where(mt => mt.ScopesId == request.ScopeId.Value);
             }
 
             // فیلتر اداره کل
@@ -263,21 +279,24 @@ namespace Application.CQRS
                     Name = mt.Name,
                     Description = mt.Description,
                     Amount = mt.Amount,
-                    ScopeId = mt.ScopeId,
+                    ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
-                    IsDelete = mt.IsDelete,
+                    BpmType = mt.BpmType,
+                    CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
-                    CreateUserId = mt.CreateUserId
+                    IsDeleted = mt.IsDeleted,
+                    FinalEnt = mt.FinalEnt,
+                    BaCreatedTime = mt.BaCreatedTime,
+                    BaGuid = mt.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
 
-    // ===== GET MAIN TITLES SUMMARY BY SCOPE QUERY =====
     public record GetMainTitlesSummaryQuery : IRequest<List<MainTitleSummaryDto>>;
 
     public class GetMainTitlesSummaryQueryHandler : IRequestHandler<GetMainTitlesSummaryQuery, List<MainTitleSummaryDto>>
@@ -293,24 +312,23 @@ namespace Application.CQRS
         {
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
-                .Where(mt => !mt.IsDelete)
-                .GroupBy(mt => new { mt.ScopeId, mt.Scope.Name })
+                .Where(mt => mt.IsDeleted != true && mt.Amount.HasValue)
+                .GroupBy(mt => new { mt.ScopesId, mt.Scope.Name })
                 .Select(g => new MainTitleSummaryDto
                 {
-                    ScopeId = g.Key.ScopeId,
-                    ScopeName = g.Key.Name,
+                    ScopeId = g.Key.ScopesId ?? 0,
+                    ScopeName = g.Key.Name ?? "",
                     TotalCount = g.Count(),
-                    TotalAmount = g.Sum(mt => mt.Amount),
-                    AverageAmount = g.Average(mt => mt.Amount),
-                    MinAmount = g.Min(mt => mt.Amount),
-                    MaxAmount = g.Max(mt => mt.Amount)
+                    TotalAmount = g.Sum(mt => mt.Amount ?? 0),
+                    AverageAmount = g.Average(mt => mt.Amount ?? 0),
+                    MinAmount = g.Min(mt => mt.Amount ?? 0),
+                    MaxAmount = g.Max(mt => mt.Amount ?? 0)
                 })
                 .OrderByDescending(s => s.TotalAmount)
                 .ToListAsync(cancellationToken);
         }
     }
 
-    // ===== GET TOP EXPENSIVE MAIN TITLES QUERY =====
     public record GetTopExpensiveMainTitlesQuery(int Top = 10) : IRequest<List<MainTitleDto>>;
 
     public class GetTopExpensiveMainTitlesQueryHandler : IRequestHandler<GetTopExpensiveMainTitlesQuery, List<MainTitleDto>>
@@ -327,26 +345,31 @@ namespace Application.CQRS
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
-                .Where(mt => !mt.IsDelete)
+                .Where(mt => mt.IsDeleted != true && mt.Amount.HasValue)
                 .OrderByDescending(mt => mt.Amount)
-                .Take(Math.Max(1, Math.Min(request.Top, 100))) // محدود به 1-100
+                .Take(Math.Max(1, Math.Min(request.Top, 100)))
                 .Select(mt => new MainTitleDto
                 {
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
                     Amount = mt.Amount,
-                    ScopeId = mt.ScopeId,
+                    ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
-                    IsDelete = mt.IsDelete,
+                    BpmType = mt.BpmType,
+                    CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
-                    CreateUserId = mt.CreateUserId
+                    IsDeleted = mt.IsDeleted,
+                    FinalEnt = mt.FinalEnt,
+                    BaCreatedTime = mt.BaCreatedTime,
+                    BaGuid = mt.BaGuid
                 })
                 .ToListAsync(cancellationToken);
         }
     }
+
 }

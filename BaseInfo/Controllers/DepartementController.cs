@@ -1,13 +1,14 @@
 ﻿using Application.Common;
 using Application.CQRS;
+using Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace BaseInfo.Controllers
 {
+    // ===== DEPARTMENTS CONTROLLER =====
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -20,166 +21,189 @@ namespace BaseInfo.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>
-        /// دریافت لیست تمام ادارات کل
-        /// </summary>
-        /// <returns>لیست ادارات کل</returns>
         [HttpGet]
-        public async Task<ActionResult<List<DepartmentDto>>> GetAll()
+        public async Task<ActionResult<ResultApi<List<DepartmentDto>>>> GetAll()
         {
-            var query = new GetAllDepartmentsQuery();
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<List<DepartmentDto>>
+            try
             {
-                IsSuccess = true,
-                Data = result
-            });
+                var query = new GetAllDepartmentsQuery();
+                var result = await _mediator.Send(query);
+                return Ok(new ResultApi<List<DepartmentDto>>
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Message = "لیست ادارات کل با موفقیت دریافت شد",
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResultApi
+                {
+                    StatusCode = 500,
+                    IsSuccess = false,
+                    Message = $"خطا در دریافت لیست ادارات کل: {ex.Message}"
+                });
+            }
         }
 
-        [HttpGet("[action]")]
-        public async Task<ActionResult<ApiResult<PagedData<DepartmentDto>>>> GetAllPagination([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
-        {
-            var query = new GetAllDepartmentsPaginationQuery(pageIndex, pageSize);
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<PagedData<DepartmentDto>>
-            {
-                IsSuccess = true,
-                Messages = null,
-                Data = result
-            });
-        }
-
-        /// <summary>
-        /// دریافت اداره کل بر اساس ID
-        /// </summary>
-        /// <param name="id">شناسه اداره کل</param>
-        /// <returns>اطلاعات اداره کل</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<DepartmentDto>> GetById(int id)
+        public async Task<ActionResult<ResultApi<DepartmentDto>>> GetById(long id)
         {
-            var query = new GetDepartmentByIdQuery(id);
-            var result = await _mediator.Send(query);
-
-            if (result == null)
-                return NotFound($"Department with ID {id} not found.");
-
-            return Ok(new ApiResult<DepartmentDto> 
+            try
             {
-                IsSuccess = true,
-                Data = result
-            });
+                var query = new GetDepartmentByIdQuery(id);
+                var result = await _mediator.Send(query);
+
+                if (result == null)
+                {
+                    return NotFound(new ResultApi
+                    {
+                        StatusCode = 404,
+                        IsSuccess = false,
+                        Message = $"اداره کل با شناسه {id} یافت نشد"
+                    });
+                }
+
+                return Ok(new ResultApi<DepartmentDto>
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Message = "اطلاعات اداره کل با موفقیت دریافت شد",
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResultApi
+                {
+                    StatusCode = 500,
+                    IsSuccess = false,
+                    Message = $"خطا در دریافت اطلاعات اداره کل: {ex.Message}"
+                });
+            }
         }
 
-        /// <summary>
-        /// دریافت لیست ادارات کل فعال (مرتب شده)
-        /// </summary>
-        /// <returns>لیست ادارات کل فعال</returns>
-        [HttpGet("active")]
-        public async Task<ActionResult<List<DepartmentDto>>> GetActive()
-        {
-            var query = new GetActiveDepartmentsQuery();
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<List<DepartmentDto>> 
-            {
-                IsSuccess = true,
-                Data = result
-            });
-        }
-
-        [HttpGet("[action]")]
-        public async Task<ActionResult<ApiResult<PagedData<DepartmentDto>>>> GetActivePagination([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
-        {
-            var query = new GetActiveDepartmentsPaginationQuery(pageIndex, pageSize);
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<PagedData<DepartmentDto>>
-            {
-                IsSuccess = true,
-                Messages = null,
-                Data = result
-            });
-        }
-
-        /// <summary>
-        /// ایجاد اداره کل جدید
-        /// </summary>
-        /// <param name="request">اطلاعات اداره کل</param>
-        /// <returns>شناسه اداره کل ایجاد شده</returns>
         [HttpPost]
-        public async Task<ActionResult<int>> Create([FromBody] CreateDepartmentRequest request)
+        public async Task<ActionResult<ResultApi<long>>> Create([FromBody] CreateDepartmentRequest request)
         {
-            var command = new CreateDepartmentCommand(request.Name);
-            var departmentId = await _mediator.Send(command);
+            try
+            {
+                var command = new CreateDepartmentCommand(request.Name);
+                var departmentId = await _mediator.Send(command);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = departmentId },
-                new { Id = departmentId, Message = "Department created successfully" }
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = departmentId },
+                    new ResultApi<long>
+                    {
+                        StatusCode = 201,
+                        IsSuccess = true,
+                        Message = "اداره کل با موفقیت ایجاد شد",
+                        Data = departmentId
+                    });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResultApi
+                {
+                    StatusCode = 500,
+                    IsSuccess = false,
+                    Message = $"خطا در ایجاد اداره کل: {ex.Message}"
+                });
+            }
         }
 
-        /// <summary>
-        /// ویرایش اداره کل
-        /// </summary>
-        /// <param name="id">شناسه اداره کل</param>
-        /// <param name="request">اطلاعات جدید</param>
-        /// <returns></returns>
         [HttpPut]
-        public async Task<ActionResult> Update([FromBody] UpdateDepartmentRequest request)
+        public async Task<ActionResult<ResultApi>> Update([FromBody] UpdateDepartmentRequest request)
         {
-            var command = new UpdateDepartmentCommand(request.Id, request.Name);
-            var result = await _mediator.Send(command);
+            try
+            {
+                var command = new UpdateDepartmentCommand(request.Id, request.Name);
+                var result = await _mediator.Send(command);
 
-            if (!result)
-                return NotFound($"Department with ID {request.Id} not found.");
+                if (!result)
+                {
+                    return NotFound(new ResultApi
+                    {
+                        StatusCode = 404,
+                        IsSuccess = false,
+                        Message = $"اداره کل با شناسه {request.Id} یافت نشد"
+                    });
+                }
 
-            return Ok(new { Message = "Department updated successfully" });
+                return Ok(new ResultApi
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Message = "اداره کل با موفقیت به‌روزرسانی شد"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResultApi
+                {
+                    StatusCode = 500,
+                    IsSuccess = false,
+                    Message = $"خطا در به‌روزرسانی اداره کل: {ex.Message}"
+                });
+            }
         }
 
-        /// <summary>
-        /// حذف اداره کل (Soft Delete)
-        /// </summary>
-        /// <param name="id">شناسه اداره کل</param>
-        /// <returns></returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult<ResultApi>> Delete(long id)
         {
-            var command = new DeleteDepartmentCommand(id);
-            var result = await _mediator.Send(command);
+            try
+            {
+                var command = new DeleteDepartmentCommand(id);
+                var result = await _mediator.Send(command);
 
-            if (!result)
-                return NotFound($"Department with ID {id} not found.");
+                if (!result)
+                {
+                    return NotFound(new ResultApi
+                    {
+                        StatusCode = 404,
+                        IsSuccess = false,
+                        Message = $"اداره کل با شناسه {id} یافت نشد"
+                    });
+                }
 
-            return Ok(new { Message = "Department deleted successfully" });
+                return Ok(new ResultApi
+                {
+                    StatusCode = 200,
+                    IsSuccess = true,
+                    Message = "اداره کل با موفقیت حذف شد"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResultApi
+                {
+                    StatusCode = 500,
+                    IsSuccess = false,
+                    Message = $"خطا در حذف اداره کل: {ex.Message}"
+                });
+            }
         }
     }
 
-    // ===== Request Models =====
 
-    /// <summary>
-    /// مدل درخواست ایجاد اداره کل
-    /// </summary>
+    // ===== Updated Request Models =====
     public class CreateDepartmentRequest
     {
-        /// <summary>
-        /// نام اداره کل
-        /// </summary>
         [Required(ErrorMessage = "نام اداره کل الزامی است")]
-        [MaxLength(200, ErrorMessage = "نام اداره کل نباید بیشتر از 200 کاراکتر باشد")]
+        [MaxLength(50, ErrorMessage = "نام اداره کل نباید بیشتر از 50 کاراکتر باشد")] // Updated limit
         [MinLength(2, ErrorMessage = "نام اداره کل باید حداقل 2 کاراکتر باشد")]
         public string Name { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// مدل درخواست ویرایش اداره کل
-    /// </summary>
     public class UpdateDepartmentRequest
     {
-        public int Id { get; set; }
-        /// <summary>
-        /// نام اداره کل
-        /// </summary>
+        [Range(1, long.MaxValue, ErrorMessage = "شناسه اداره کل باید عددی مثبت باشد")]
+        public long Id { get; set; } // Changed from int to long
+
         [Required(ErrorMessage = "نام اداره کل الزامی است")]
-        [MaxLength(200, ErrorMessage = "نام اداره کل نباید بیشتر از 200 کاراکتر باشد")]
+        [MaxLength(50, ErrorMessage = "نام اداره کل نباید بیشتر از 50 کاراکتر باشد")] // Updated limit
         [MinLength(2, ErrorMessage = "نام اداره کل باید حداقل 2 کاراکتر باشد")]
         public string Name { get; set; } = string.Empty;
     }
