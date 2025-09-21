@@ -13,9 +13,10 @@ using Refit;
 
 namespace Application.CQRS
 {
-    public record CreateDepartmentCommand(string Name) : IRequest<int>;
+    // ===== CREATE COMMAND =====
+    public record CreateDepartmentCommand(string Name) : IRequest<long>;
 
-    public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, int>
+    public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, long>
     {
         private readonly DarooDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -23,7 +24,12 @@ namespace Application.CQRS
         private readonly ISSOClient _sSOClient;
         private readonly AppSettingsOption _appSettingsOption;
 
-        public CreateDepartmentCommandHandler(IClaimHelper claimHelper, ISSOClient sSOClient,DarooDbContext context, IHttpContextAccessor httpContextAccessor, IOptions<AppSettingsOption> appSettingOption)
+        public CreateDepartmentCommandHandler(
+            IClaimHelper claimHelper,
+            ISSOClient sSOClient,
+            DarooDbContext context,
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<AppSettingsOption> appSettingOption)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
@@ -32,7 +38,7 @@ namespace Application.CQRS
             _appSettingsOption = appSettingOption.Value;
         }
 
-        public async Task<int> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
+        public async Task<long> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
         {
             var token = _httpContextAccessor.HttpContext?.Request.Cookies[_appSettingsOption.Settings.CookieInfo.Name];
             var result = await _sSOClient.GetCurrentUser($"{_appSettingsOption.Settings.CookieInfo.Name}=" + token);
@@ -42,11 +48,17 @@ namespace Application.CQRS
 
             var department = new Department
             {
-                CreateUserId = result.Data.NationalCode,
                 Name = request.Name,
+                CreateUserID = int.Parse(result.Data.NationalCode), // Convert to int
                 CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now
+                ModifyDate = DateTime.Now,
+                FinalEnt = 10008, // Bizagi default
+                BaGuid = Guid.NewGuid(),
+                IsDeleted = false
             };
+
+            // Set BaCreatedTime to current Unix timestamp in milliseconds
+            department.SetBaCreatedTimeToNow();
 
             _context.Departments.Add(department);
             await _context.SaveChangesAsync(cancellationToken);
@@ -55,19 +67,8 @@ namespace Application.CQRS
         }
     }
 
-    public class CreateDepartmentValidator : AbstractValidator<CreateDepartmentCommand>
-    {
-        public CreateDepartmentValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("نام اداره کل الزامی است")
-                .MinimumLength(2)
-                .MaximumLength(200);
-        }
-    }
-
-    // Update Command
-    public record UpdateDepartmentCommand(int Id, string Name) : IRequest<bool>;
+    // ===== UPDATE COMMAND =====
+    public record UpdateDepartmentCommand(long Id, string Name) : IRequest<bool>;
 
     public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand, bool>
     {
@@ -82,18 +83,20 @@ namespace Application.CQRS
         {
             var department = await _context.Departments.FindAsync(request.Id, cancellationToken);
 
-            if (department == null)
+            if (department == null || department.IsDeleted == true)
                 return false;
 
             department.Name = request.Name;
+            department.ModifyDate = DateTime.Now;
 
+            _context.Departments.Update(department);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
     }
 
-    // Delete Command
-    public record DeleteDepartmentCommand(int Id) : IRequest<bool>;
+    // ===== DELETE COMMAND (Soft Delete) =====
+    public record DeleteDepartmentCommand(long Id) : IRequest<bool>;
 
     public class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand, bool>
     {
@@ -108,15 +111,27 @@ namespace Application.CQRS
         {
             var department = await _context.Departments.FindAsync(request.Id, cancellationToken);
 
-            if (department == null || department.IsDelete)
+            if (department == null || department.IsDeleted == true)
                 return false;
 
-            department.IsDelete = true;
-            department.ModifyDate = DateTime.UtcNow; // اضافه کردن ModifyDate
+            department.IsDeleted = true;
+            department.ModifyDate = DateTime.Now;
 
             _context.Departments.Update(department);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
+        }
+    }
+
+    // ===== VALIDATORS =====
+    public class CreateDepartmentValidator : AbstractValidator<CreateDepartmentCommand>
+    {
+        public CreateDepartmentValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("نام اداره کل الزامی است")
+                .MinimumLength(2).WithMessage("نام اداره کل باید حداقل 2 کاراکتر باشد")
+                .MaximumLength(50).WithMessage("نام اداره کل نباید بیشتر از 50 کاراکتر باشد"); // Updated to match Bizagi limit
         }
     }
 
@@ -130,8 +145,7 @@ namespace Application.CQRS
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("نام اداره کل الزامی است")
                 .MinimumLength(2).WithMessage("نام اداره کل باید حداقل 2 کاراکتر باشد")
-                .MaximumLength(200).WithMessage("نام اداره کل نباید بیشتر از 200 کاراکتر باشد");
+                .MaximumLength(50).WithMessage("نام اداره کل نباید بیشتر از 50 کاراکتر باشد"); // Updated to match Bizagi limit
         }
     }
-
 }

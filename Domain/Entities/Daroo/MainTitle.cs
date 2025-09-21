@@ -7,42 +7,58 @@ namespace Domain.Entities.Daroo
     /// <summary>
     /// انتیتی عنوان اصلی - هر حوزه می‌تواند چندین عنوان اصلی داشته باشد
     /// </summary>
-    public class MainTitle : BaseEntity
+    [Table("MainTitle")]
+    public class MainTitle
     {
-        /// <summary>
-        /// نام عنوان اصلی
-        /// </summary>
-        [Required]
-        [MaxLength(300)]
-        public string Name { get; set; } = string.Empty;
+        [Key]
+        [Column("idMainTitle")]
+        public long Id { get; set; }
 
-        /// <summary>
-        /// توضیحات عنوان اصلی
-        /// </summary>
-        [MaxLength(1000)]
+        [Column("finalEnt")]
+        public int FinalEnt { get; set; } = 10012;
+
+        [Column("baCreatedTime")]
+        public long BaCreatedTime { get; set; }
+
+        [Column("baGuid")]
+        public Guid BaGuid { get; set; } = Guid.NewGuid();
+
+        [Column("Name")]
+        [MaxLength(50)]
+        public string? Name { get; set; }
+
+        [Column("Description")]
+        [MaxLength(150)]
         public string? Description { get; set; }
 
-        /// <summary>
-        /// مبلغ تعیین شده برای این عنوان اصلی
-        /// </summary>
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }
+        [Column("Amount")]
+        public decimal? Amount { get; set; }
 
-        /// <summary>
-        /// شناسه حوزه مربوطه
-        /// </summary>
-        public int ScopeId { get; set; }
+        [Column("ScopesId")]
+        public long? ScopesId { get; set; }
 
-        /// <summary>
-        /// Navigation Property - حوزه مربوطه
-        /// </summary>
-        public Scope Scope { get; set; } = null!;
+        [Column("DisplayOrder")]
+        [MaxLength(50)]
+        public string? DisplayOrder { get; set; }
 
-        /// <summary>
-        /// اولویت نمایش (برای مرتب‌سازی)
-        /// </summary>
-        public int DisplayOrder { get; set; } = 0;
+        [Column("CreateUserID")]
+        public long? CreateUserID { get; set; }
 
-        public virtual ICollection<MainTitleServiceFeature> MainTitleServiceFeatures { get; set; } = new List<MainTitleServiceFeature>();
+        [Column("CreateDate")]
+        public DateTime? CreateDate { get; set; }
+
+        [Column("ModifyDate")]
+        public DateTime? ModifyDate { get; set; }
+
+        [Column("IsDeleted")]
+        public bool? IsDeleted { get; set; }
+
+        [Column("BpmType")]
+        public long? BpmType { get; set; }
+
+        // Navigation Properties
+        [ForeignKey("ScopesId")]
+        public virtual Scope Scope { get; set; } = null!;
     }
+
 }

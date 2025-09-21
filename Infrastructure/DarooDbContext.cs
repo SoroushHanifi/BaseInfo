@@ -3,188 +3,140 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
 {
+    /// <summary>
+    /// DbContext updated to work with Bizagi generated tables
+    /// </summary>
     public class DarooDbContext : DbContext
     {
         public DarooDbContext(DbContextOptions<DarooDbContext> options) : base(options) { }
 
-        #region DbSets
+        #region DbSets - Bizagi Tables
         public DbSet<Department> Departments { get; set; }
         public DbSet<Scope> Scopes { get; set; }
         public DbSet<MainTitle> MainTitles { get; set; }
-        public DbSet<ServiceFeature> ServiceFeatures { get; set; }
-        public DbSet<MainTitleServiceFeature> MainTitleServiceFeatures { get; set; }
+        public DbSet<ProductType> ProductTypes { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // پیکربندی Department
+            // Configure Department
             modelBuilder.Entity<Department>(entity =>
             {
+                entity.ToTable("Department");
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Name)
-                      .HasMaxLength(200)
-                      .IsRequired();
+                // Configure properties
+                entity.Property(e => e.Id).HasColumnName("idDepartment");
+                entity.Property(e => e.FinalEnt).HasColumnName("finalEnt").HasDefaultValue(10008);
+                entity.Property(e => e.BaCreatedTime).HasColumnName("baCreatedTime");
+                entity.Property(e => e.BaGuid).HasColumnName("baGuid").HasDefaultValueSql("newid()");
+                entity.Property(e => e.Name).HasColumnName("Name").HasMaxLength(50);
+                entity.Property(e => e.CreateUserID).HasColumnName("CreateUserID");
+                entity.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                entity.Property(e => e.ModifyDate).HasColumnName("ModifyDate");
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
 
-                entity.Property(e => e.CreateUserId)
-                      .IsRequired();
-
-                // Index برای بهبود عملکرد
-                entity.HasIndex(e => e.Name);
-                entity.HasIndex(e => e.IsDelete);
-                entity.HasIndex(e => e.CreateUserId);
-                entity.HasIndex(e => e.CreateDate);
+                // Configure default for baCreatedTime
+                entity.Property(e => e.BaCreatedTime)
+                      .HasDefaultValueSql("CONVERT([bigint],datediff(second,'1970-01-01',getutcdate()))*(1000)");
             });
 
-            // پیکربندی Scope
+            // Configure Scopes
             modelBuilder.Entity<Scope>(entity =>
             {
+                entity.ToTable("Scopes");
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Name)
-                      .HasMaxLength(250)
-                      .IsRequired();
+                // Configure properties
+                entity.Property(e => e.Id).HasColumnName("idScopes");
+                entity.Property(e => e.FinalEnt).HasColumnName("finalEnt").HasDefaultValue(10009);
+                entity.Property(e => e.BaCreatedTime).HasColumnName("baCreatedTime");
+                entity.Property(e => e.BaGuid).HasColumnName("baGuid").HasDefaultValueSql("newid()");
+                entity.Property(e => e.Name).HasColumnName("Name").HasMaxLength(50);
+                entity.Property(e => e.DepartmentId).HasColumnName("Department");
+                entity.Property(e => e.CreateUserID).HasColumnName("CreateUserID");
+                entity.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                entity.Property(e => e.ModifyDate).HasColumnName("ModifyDate");
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
 
-                entity.Property(e => e.CreateUserId)
-                      .IsRequired();
+                // Configure default for baCreatedTime
+                entity.Property(e => e.BaCreatedTime)
+                      .HasDefaultValueSql("CONVERT([bigint],datediff(second,'1970-01-01',getutcdate()))*(1000)");
 
-                // رابطه با Department (One-to-Many)
+                // Configure relationship with Department
                 entity.HasOne(s => s.Department)
                       .WithMany(d => d.Scopes)
                       .HasForeignKey(s => s.DepartmentId)
+                      .HasConstraintName("FK_Scopes_Department")
                       .OnDelete(DeleteBehavior.Restrict);
-
-                // Index ها برای بهبود عملکرد
-                entity.HasIndex(e => e.Name);
-                entity.HasIndex(e => e.DepartmentId);
-                entity.HasIndex(e => e.IsDelete);
-                entity.HasIndex(e => e.CreateUserId);
-                entity.HasIndex(e => e.CreateDate);
-
-                // Index ترکیبی
-                entity.HasIndex(e => new { e.DepartmentId, e.IsDelete });
             });
 
-            // پیکربندی MainTitle
+            // Configure MainTitle
             modelBuilder.Entity<MainTitle>(entity =>
             {
+                entity.ToTable("MainTitle");
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Name)
-                      .HasMaxLength(300)
-                      .IsRequired();
+                // Configure properties
+                entity.Property(e => e.Id).HasColumnName("idMainTitle");
+                entity.Property(e => e.FinalEnt).HasColumnName("finalEnt").HasDefaultValue(10012);
+                entity.Property(e => e.BaCreatedTime).HasColumnName("baCreatedTime");
+                entity.Property(e => e.BaGuid).HasColumnName("baGuid").HasDefaultValueSql("newid()");
+                entity.Property(e => e.Name).HasColumnName("Name").HasMaxLength(50);
+                entity.Property(e => e.Description).HasColumnName("Description").HasMaxLength(150);
+                entity.Property(e => e.Amount).HasColumnName("Amount").HasColumnType("money");
+                entity.Property(e => e.ScopesId).HasColumnName("ScopesId");
+                entity.Property(e => e.DisplayOrder).HasColumnName("DisplayOrder").HasMaxLength(50);
+                entity.Property(e => e.CreateUserID).HasColumnName("CreateUserID");
+                entity.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                entity.Property(e => e.ModifyDate).HasColumnName("ModifyDate");
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                entity.Property(e => e.BpmType).HasColumnName("BpmType");
 
-                entity.Property(e => e.Description)
-                      .HasMaxLength(1000);
+                // Configure default for baCreatedTime
+                entity.Property(e => e.BaCreatedTime)
+                      .HasDefaultValueSql("CONVERT([bigint],datediff(second,'1970-01-01',getutcdate()))*(1000)");
 
-                entity.Property(e => e.Amount)
-                      .HasColumnType("decimal(18,2)")
-                      .IsRequired();
-
-                entity.Property(e => e.CreateUserId)
-                      .IsRequired();
-
-                // رابطه با Scope (One-to-Many)
+                // Configure relationship with Scope
                 entity.HasOne(mt => mt.Scope)
                       .WithMany(s => s.MainTitles)
-                      .HasForeignKey(mt => mt.ScopeId)
+                      .HasForeignKey(mt => mt.ScopesId)
+                      .HasConstraintName("FK_MainTitle_Scopes")
                       .OnDelete(DeleteBehavior.Restrict);
-
-                // Index ها برای بهبود عملکرد
-                entity.HasIndex(e => e.Name);
-                entity.HasIndex(e => e.ScopeId);
-                entity.HasIndex(e => e.IsDelete);
-                entity.HasIndex(e => e.DisplayOrder);
-                entity.HasIndex(e => e.CreateUserId);
-                entity.HasIndex(e => e.CreateDate);
-
-                // Index ترکیبی برای بهبود query های متداول
-                entity.HasIndex(e => new { e.ScopeId, e.IsDelete, e.DisplayOrder });
-                entity.HasIndex(e => new { e.IsDelete, e.Amount });
             });
 
-            // پیکربندی ServiceFeature
-            modelBuilder.Entity<ServiceFeature>(entity =>
+            // Configure ProductType
+            modelBuilder.Entity<ProductType>(entity =>
             {
+                entity.ToTable("ProductType");
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Name)
-                      .HasMaxLength(200)
-                      .IsRequired();
+                // Configure properties
+                entity.Property(e => e.Id).HasColumnName("idProductType");
+                entity.Property(e => e.FinalEnt).HasColumnName("finalEnt").HasDefaultValue(10011);
+                entity.Property(e => e.BaCreatedTime).HasColumnName("baCreatedTime");
+                entity.Property(e => e.BaGuid).HasColumnName("baGuid").HasDefaultValueSql("newid()");
+                entity.Property(e => e.Name).HasColumnName("Name").HasMaxLength(50);
+                entity.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                entity.Property(e => e.ModifyDate).HasColumnName("ModifyDate");
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                entity.Property(e => e.MainTitleID).HasColumnName("MainTitleID");
 
-                entity.Property(e => e.Description)
-                      .HasMaxLength(500);
+                // Configure default for baCreatedTime
+                entity.Property(e => e.BaCreatedTime)
+                      .HasDefaultValueSql("CONVERT([bigint],datediff(second,'1970-01-01',getutcdate'))*(1000)");
 
-                entity.Property(e => e.Code)
-                      .HasMaxLength(50);
-
-                entity.Property(e => e.Icon)
-                      .HasMaxLength(100);
-
-                entity.Property(e => e.Color)
-                      .HasMaxLength(20);
-
-                entity.Property(e => e.CreateUserId)
-                      .IsRequired();
-
-                // Index ها برای بهبود عملکرد
-                entity.HasIndex(e => e.Name);
-                entity.HasIndex(e => e.Code).IsUnique().HasFilter("[Code] IS NOT NULL");
-                entity.HasIndex(e => e.IsDelete);
-                entity.HasIndex(e => e.IsActive);
-                entity.HasIndex(e => e.DisplayOrder);
-                entity.HasIndex(e => e.CreateUserId);
-
-                // Index ترکیبی
-                entity.HasIndex(e => new { e.IsDelete, e.IsActive, e.DisplayOrder });
+                // Configure relationship with MainTitle
+                entity.HasOne(pt => pt.MainTitle)
+                      .WithMany()
+                      .HasForeignKey(pt => pt.MainTitleID)
+                      .HasConstraintName("FK_ProductType_MainTitle")
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // پیکربندی MainTitleServiceFeature (Junction Table)
-            modelBuilder.Entity<MainTitleServiceFeature>(entity =>
-            {
-                entity.HasKey(e => e.Id);
 
-                // Alternative Composite Key (اختیاری - اگر می‌خواهید از Id جداگانه استفاده نکنید)
-                // entity.HasKey(e => new { e.MainTitleId, e.ServiceFeatureId });
-
-                entity.Property(e => e.Notes)
-                      .HasMaxLength(500);
-
-                entity.Property(e => e.CreateUserId)
-                      .IsRequired();
-
-                // رابطه با MainTitle
-                entity.HasOne(mtsf => mtsf.MainTitle)
-                      .WithMany(mt => mt.MainTitleServiceFeatures)
-                      .HasForeignKey(mtsf => mtsf.MainTitleId)
-                      .OnDelete(DeleteBehavior.Cascade); // حذف CASCADE برای junction table
-
-                // رابطه با ServiceFeature
-                entity.HasOne(mtsf => mtsf.ServiceFeature)
-                      .WithMany(sf => sf.MainTitleServiceFeatures)
-                      .HasForeignKey(mtsf => mtsf.ServiceFeatureId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                // Index ها برای بهبود عملکرد
-                entity.HasIndex(e => e.MainTitleId);
-                entity.HasIndex(e => e.ServiceFeatureId);
-                entity.HasIndex(e => e.IsActive);
-                entity.HasIndex(e => e.IsDelete);
-                entity.HasIndex(e => e.DisplayOrder);
-                entity.HasIndex(e => e.CreateUserId);
-
-                // Index ترکیبی برای query های متداول
-                entity.HasIndex(e => new { e.MainTitleId, e.IsDelete, e.IsActive });
-                entity.HasIndex(e => new { e.ServiceFeatureId, e.IsDelete, e.IsActive });
-                entity.HasIndex(e => new { e.MainTitleId, e.ServiceFeatureId, e.IsDelete });
-
-                // Unique constraint برای جلوگیری از تکرار رابطه
-                entity.HasIndex(e => new { e.MainTitleId, e.ServiceFeatureId })
-                      .IsUnique()
-                      .HasFilter("[IsDelete] = 0"); // فقط برای رکوردهای حذف نشده
-            });
         }
     }
 }

@@ -1,21 +1,22 @@
-﻿using Domain.Entities.Common;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Domain.Entities.Daroo
 {
-    /// <summary>
-    /// انتیتی حوزه - هر اداره کل می‌تواند چندین حوزه داشته باشد
-    /// </summary>
-    [Table("Scopes")]
-    public class Scope
+    [Table("ProductType")]
+    public class ProductType
     {
         [Key]
-        [Column("idScopes")]
+        [Column("idProductType")]
         public long Id { get; set; }
 
         [Column("finalEnt")]
-        public int FinalEnt { get; set; } = 10009;
+        public int FinalEnt { get; set; } = 10011;
 
         [Column("baCreatedTime")]
         public long BaCreatedTime { get; set; }
@@ -27,12 +28,6 @@ namespace Domain.Entities.Daroo
         [MaxLength(50)]
         public string? Name { get; set; }
 
-        [Column("Department")]
-        public long? DepartmentId { get; set; }
-
-        [Column("CreateUserID")]
-        public long? CreateUserID { get; set; }
-
         [Column("CreateDate")]
         public DateTime? CreateDate { get; set; }
 
@@ -42,12 +37,12 @@ namespace Domain.Entities.Daroo
         [Column("IsDeleted")]
         public bool? IsDeleted { get; set; }
 
+        [Column("MainTitleID")]
+        public long? MainTitleID { get; set; }
+
         // Navigation Properties
-        [ForeignKey("DepartmentId")]
-        public virtual Department Department { get; set; } = null!;
-
-        public virtual ICollection<MainTitle> MainTitles { get; set; } = new List<MainTitle>();
+        [ForeignKey("MainTitleID")]
+        public virtual MainTitle MainTitle { get; set; } = null!;
     }
-
 
 }
