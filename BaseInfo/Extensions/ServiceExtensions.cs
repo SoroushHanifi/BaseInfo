@@ -3,7 +3,6 @@ using Application.Infra;
 using Application.OptionPatternModel;
 using Application.Refits;
 using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using Domain;
 using Infrastructure;
 using Infrastructure.Models;
@@ -14,7 +13,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Security.Claims;
 using Refit;
 
