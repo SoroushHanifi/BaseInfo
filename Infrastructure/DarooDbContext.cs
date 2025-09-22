@@ -17,6 +17,7 @@ namespace Infrastructure
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<ServiceFeature> ServiceFeatures { get; set; }
         public DbSet<MainTitleServiceFeature> MainTitleServiceFeatures { get; set; }
+        public DbSet<BpmType> BpmTypes { get; set; } // اضافه کردن DbSet برای BpmType
 
         #endregion
 
@@ -137,6 +138,29 @@ namespace Infrastructure
                       .HasForeignKey(pt => pt.MainTitleID)
                       .HasConstraintName("FK_ProductType_MainTitle")
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<BpmType>(entity =>
+            {
+                entity.ToTable("BpmType");
+                entity.HasKey(e => e.Id);
+
+                // Configure properties
+                entity.Property(e => e.Id).HasColumnName("idBpmType");
+                entity.Property(e => e.FinalEnt).HasColumnName("finalEnt").HasDefaultValue(10010);
+                entity.Property(e => e.BaCreatedTime).HasColumnName("baCreatedTime");
+                entity.Property(e => e.BaGuid).HasColumnName("baGuid").HasDefaultValueSql("NEWID()");
+                entity.Property(e => e.Name).HasColumnName("Name").HasMaxLength(50);
+                entity.Property(e => e.CreateUserID).HasColumnName("CreateUserID");
+                entity.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                entity.Property(e => e.ModifyDate).HasColumnName("ModifyDate");
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+
+                // Configure default for baCreatedTime
+                entity.Property(e => e.BaCreatedTime)
+                      .HasDefaultValueSql("CONVERT([bigint], DATEDIFF(SECOND, '1970-01-01', GETUTCDATE())) * (1000)");
+
+
             });
 
 
