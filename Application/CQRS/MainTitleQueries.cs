@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Application.Common;
+using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -94,6 +95,88 @@ namespace Application.CQRS
                 .ToListAsync(cancellationToken);
         }
     }
+
+
+    public record GetAllMainTitlesPaginationQuery(int PageIndex = 1, int PageSize = 10, long? scopeId = 0, long? bpmType = 0) : IRequest<PagedData<MainTitleDto>>;
+
+    public class GetAllMainTitlesQueryPaginationHandler : IRequestHandler<GetAllMainTitlesPaginationQuery, PagedData<MainTitleDto>>
+    {
+        private readonly DarooDbContext _context;
+
+        public GetAllMainTitlesQueryPaginationHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<PagedData<MainTitleDto>> Handle(GetAllMainTitlesPaginationQuery request, CancellationToken cancellationToken)
+        {
+            int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
+            int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+            var query = _context.MainTitles
+            .Include(mt => mt.Scope)
+                .ThenInclude(s => s.Department)
+            .Where(mt => mt.IsDeleted != true);
+
+            if (request.scopeId != 0)
+            {
+                query = query.Where(mt => mt.ScopesId == request.scopeId);
+            }
+
+            
+            if (request.bpmType != 0)
+            {
+                query = query.Where(mt => mt.BpmType == request.bpmType);
+            }
+
+            int totalCount = await query.CountAsync(cancellationToken);
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.MainTitles
+                .Include(mt => mt.Scope)
+                    .ThenInclude(s => s.Department)
+                .Where(mt => mt.IsDeleted != true)
+                .OrderBy(mt => mt.Scope.Department.Name)
+                .ThenBy(mt => mt.Scope.Name)
+                .ThenBy(mt => mt.DisplayOrder)
+                .ThenBy(mt => mt.Name)
+                .Select(mt => new MainTitleDto
+                {
+                    Id = mt.Id,
+                    Name = mt.Name,
+                    Description = mt.Description,
+                    Amount = mt.Amount,
+                    ScopesId = mt.ScopesId,
+                    ScopeName = mt.Scope.Name,
+                    DepartmentId = mt.Scope.DepartmentId,
+                    DepartmentName = mt.Scope.Department.Name,
+                    DisplayOrder = mt.DisplayOrder,
+                    BpmType = mt.BpmType,
+                    CreateUserID = mt.CreateUserID,
+                    CreateDate = mt.CreateDate,
+                    ModifyDate = mt.ModifyDate,
+                    IsDeleted = mt.IsDeleted,
+                    FinalEnt = mt.FinalEnt,
+                    BaCreatedTime = mt.BaCreatedTime,
+                    BaGuid = mt.BaGuid
+                })
+                .ToListAsync(cancellationToken);
+
+            return new PagedData<MainTitleDto>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                IndexFrom = (pageIndex - 1) * pageSize,
+                Items = items,
+                HasPreviousPage = pageIndex > 1,
+                HasNextPage = pageIndex < totalPages
+            };
+        }
+    }
+
+
 
     public record GetMainTitleByIdQuery(long Id) : IRequest<MainTitleDto?>;
 

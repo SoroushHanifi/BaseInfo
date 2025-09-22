@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Application.Common;
+using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,7 @@ namespace Application.CQRS
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public long? DepartementId { get; set; }
     }
 
     // ===== GET ALL SCOPES QUERY =====
@@ -66,6 +68,64 @@ namespace Application.CQRS
         }
     }
 
+
+    public record GetAllScopesPaginationQuery(int PageIndex = 1, int PageSize = 10) : IRequest<PagedData<ScopeDto>>;
+
+    public class GetAllScopespaginationQueryHandler : IRequestHandler<GetAllScopesPaginationQuery, PagedData<ScopeDto>>
+    {
+        private readonly DarooDbContext _context;
+
+        public GetAllScopespaginationQueryHandler(DarooDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<PagedData<ScopeDto>> Handle(GetAllScopesPaginationQuery request, CancellationToken cancellationToken)
+        {
+
+            int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
+            int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+            int totalCount = await _context.Scopes
+                .Include(s => s.Department)
+                .Where(s => s.IsDeleted != true)
+                .CountAsync(cancellationToken);
+
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.Scopes
+                .Where(d => d.IsDeleted != true)
+                .OrderBy(d => d.Name)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(d => new ScopeDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    CreateUserID = d.CreateUserID,
+                    CreateDate = d.CreateDate,
+                    ModifyDate = d.ModifyDate,
+                    IsDeleted = d.IsDeleted,
+                    FinalEnt = d.FinalEnt,
+                    BaCreatedTime = d.BaCreatedTime,
+                    BaGuid = d.BaGuid
+                })
+                .ToListAsync(cancellationToken);
+
+            return new PagedData<ScopeDto>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                IndexFrom = (pageIndex - 1) * pageSize,
+                Items = items,
+                HasPreviousPage = pageIndex > 1,
+                HasNextPage = pageIndex < totalPages
+            };
+        }
+    }
+
     public record GetScopeByIdQuery(long Id) : IRequest<ScopeDto?>;
 
     public class GetScopeByIdQueryHandler : IRequestHandler<GetScopeByIdQuery, ScopeDto?>
@@ -100,9 +160,9 @@ namespace Application.CQRS
         }
     }
 
-    public record GetScopesByDepartmentIdQuery(long DepartmentId) : IRequest<List<ScopeSimpleDto>>;
+    public record GetScopesByDepartmentIdQuery(int PageIndex = 1, int PageSize = 10, long DepartmentId = 0) : IRequest<PagedData<ScopeSimpleDto>>;
 
-    public class GetScopesByDepartmentIdQueryHandler : IRequestHandler<GetScopesByDepartmentIdQuery, List<ScopeSimpleDto>>
+    public class GetScopesByDepartmentIdQueryHandler : IRequestHandler<GetScopesByDepartmentIdQuery, PagedData<ScopeSimpleDto>>
     {
         private readonly DarooDbContext _context;
 
@@ -111,17 +171,40 @@ namespace Application.CQRS
             _context = context;
         }
 
-        public async Task<List<ScopeSimpleDto>> Handle(GetScopesByDepartmentIdQuery request, CancellationToken cancellationToken)
+        public async Task<PagedData<ScopeSimpleDto>> Handle(GetScopesByDepartmentIdQuery request, CancellationToken cancellationToken)
         {
-            return await _context.Scopes
+            int pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
+            int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+            int totalCount = await _context.Scopes
+                .Where(s => s.DepartmentId == request.DepartmentId && s.IsDeleted != true)
+                .OrderBy(s => s.Name)
+                .CountAsync(cancellationToken);
+
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.Scopes
                 .Where(s => s.DepartmentId == request.DepartmentId && s.IsDeleted != true)
                 .OrderBy(s => s.Name)
                 .Select(s => new ScopeSimpleDto
                 {
                     Id = s.Id,
-                    Name = s.Name
+                    Name = s.Name,
+                    DepartementId = s.DepartmentId
                 })
                 .ToListAsync(cancellationToken);
+
+            return new PagedData<ScopeSimpleDto>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                IndexFrom = (pageIndex - 1) * pageSize,
+                Items = items,
+                HasPreviousPage = pageIndex > 1,
+                HasNextPage = pageIndex < totalPages
+            };
         }
     }
 

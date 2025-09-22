@@ -21,19 +21,34 @@ namespace BaseInfo.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResultApi<List<ScopeDto>>>> GetAll()
+        public async Task<ActionResult<ResultApi<PagedData<ScopeDto>>>> GetAll([FromQuery] long? departmentId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = new GetAllScopesQuery();
-                var result = await _mediator.Send(query);
-                return Ok(new ResultApi<List<ScopeDto>>
+                if (departmentId == null)
                 {
-                    StatusCode = 200,
-                    IsSuccess = true,
-                    Message = "لیست حوزه‌ها با موفقیت دریافت شد",
-                    Data = result
-                });
+                    var query = new GetAllScopesPaginationQuery(pageIndex, pageSize);
+                    var result = await _mediator.Send(query);
+                    return Ok(new ResultApi<PagedData<ScopeDto>>
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Message = "لیست حوزه‌ها با موفقیت دریافت شد",
+                        Data = result
+                    });
+                }
+                else 
+                {
+                    var query = new GetScopesByDepartmentIdQuery(pageIndex, pageSize, (long)departmentId);
+                    var result = await _mediator.Send(query);
+                    return Ok(new ResultApi<PagedData<ScopeSimpleDto>>
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Message = "لیست حوزه‌های اداره کل با موفقیت دریافت شد",
+                        Data = result
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -79,32 +94,6 @@ namespace BaseInfo.Controllers
                     StatusCode = 500,
                     IsSuccess = false,
                     Message = $"خطا در دریافت اطلاعات حوزه: {ex.Message}"
-                });
-            }
-        }
-
-        [HttpGet("department/{departmentId}")]
-        public async Task<ActionResult<ResultApi<List<ScopeSimpleDto>>>> GetByDepartmentId(long departmentId)
-        {
-            try
-            {
-                var query = new GetScopesByDepartmentIdQuery(departmentId);
-                var result = await _mediator.Send(query);
-                return Ok(new ResultApi<List<ScopeSimpleDto>>
-                {
-                    StatusCode = 200,
-                    IsSuccess = true,
-                    Message = "لیست حوزه‌های اداره کل با موفقیت دریافت شد",
-                    Data = result
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ResultApi
-                {
-                    StatusCode = 500,
-                    IsSuccess = false,
-                    Message = $"خطا در دریافت حوزه‌های اداره کل: {ex.Message}"
                 });
             }
         }

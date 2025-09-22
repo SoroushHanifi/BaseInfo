@@ -22,13 +22,13 @@ namespace BaseInfo.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResultApi<List<DepartmentDto>>>> GetAll()
+        public async Task<ActionResult<ResultApi<PagedData<DepartmentDto>>>> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = new GetAllDepartmentsQuery();
+                var query = new GetAllDepartmentsPaginationQuery(pageIndex, pageSize);
                 var result = await _mediator.Send(query);
-                return Ok(new ResultApi<List<DepartmentDto>>
+                return Ok(new ResultApi<PagedData<DepartmentDto>>
                 {
                     StatusCode = 200,
                     IsSuccess = true,

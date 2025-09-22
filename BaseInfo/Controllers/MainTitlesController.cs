@@ -28,19 +28,35 @@ namespace BaseInfo.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResultApi<List<MainTitleDto>>>> GetAll()
+        public async Task<ActionResult<ResultApi<PagedData<MainTitleDto>>>> GetAll([FromQuery] int? pageIndex,[FromQuery] int? pageSize,[FromQuery] long? scopeId, [FromQuery] long? bpmTypeId)
         {
             try
             {
-                var query = new GetAllMainTitlesQuery();
-                var result = await _mediator.Send(query);
-                return Ok(new ResultApi<List<MainTitleDto>>
+                if (bpmTypeId != null || scopeId != null)
                 {
-                    StatusCode = 200,
-                    IsSuccess = true,
-                    Message = "لیست عناوین اصلی با موفقیت دریافت شد",
-                    Data = result
-                });
+                    var query = new GetAllMainTitlesPaginationQuery(pageIndex ?? 1, pageSize ?? 10, scopeId, bpmTypeId);
+                    var result = await _mediator.Send(query);
+                    return Ok(new ResultApi<PagedData<MainTitleDto>>
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Message = "لیست عناوین اصلی با موفقیت دریافت شد",
+                        Data = result
+                    });
+                }
+                else 
+                {
+                    var query = new GetAllMainTitlesPaginationQuery(pageIndex ?? 1, pageSize ?? 10);
+                    var result = await _mediator.Send(query);
+                    return Ok(new ResultApi<PagedData<MainTitleDto>>
+                    {
+                        StatusCode = 200,
+                        IsSuccess = true,
+                        Message = "لیست عناوین اصلی با موفقیت دریافت شد",
+                        Data = result
+                    });
+                }
+                
             }
             catch (Exception ex)
             {
