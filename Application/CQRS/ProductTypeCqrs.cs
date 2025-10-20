@@ -22,7 +22,7 @@ namespace Application.CQRS
         public long? MainTitleID { get; set; }
         public string MainTitleName { get; set; } = string.Empty;
         public DateTime? CreateDate { get; set; }
-        public DateTime? ModifyDate { get; set; }
+        public string? ModifyDate { get; set; }
         public bool? IsDeleted { get; set; }
         public int FinalEnt { get; set; }
         public long BaCreatedTime { get; set; }
@@ -73,6 +73,7 @@ namespace Application.CQRS
 
             var productType = new ProductType
             {
+                Id = _context.GetLastId<ProductType>() + 1,
                 Name = request.Name,
                 MainTitleID = request.MainTitleID
             };

@@ -19,7 +19,7 @@ namespace Application.CQRS
         public string Name { get; set; } = string.Empty;
         public int? CreateUserID { get; set; }
         public DateTime? CreateDate { get; set; }
-        public DateTime? ModifyDate { get; set; }
+        public string? ModifyDate { get; set; }
         public bool? IsDeleted { get; set; }
         public int FinalEnt { get; set; }
         public long BaCreatedTime { get; set; }

@@ -7,7 +7,7 @@ namespace Application.CQRS
     // ===== DTOs =====
     public class ServiceFeatureDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Code { get; set; }
@@ -17,13 +17,13 @@ namespace Application.CQRS
         public bool IsActive { get; set; }
         public bool IsDelete { get; set; }
         public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
+        public string ModifyDate { get; set; }
         public string CreateUserId { get; set; } = string.Empty;
     }
 
     public class ServiceFeatureSimpleDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Icon { get; set; }
         public string? Color { get; set; }
@@ -32,7 +32,7 @@ namespace Application.CQRS
 
     public class MainTitleServiceFeatureDto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int MainTitleId { get; set; }
         public string MainTitleName { get; set; } = string.Empty;
         public int ServiceFeatureId { get; set; }

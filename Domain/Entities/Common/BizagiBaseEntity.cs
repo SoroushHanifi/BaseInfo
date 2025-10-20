@@ -22,7 +22,7 @@ namespace Domain.Entities.Common
         public DateTime? CreateDate { get; set; }
 
         [Column("ModifyDate")]
-        public DateTime? ModifyDate { get; set; }
+        public string? ModifyDate { get; set; }
 
         [Column("IsDeleted")]
         public bool? IsDeleted { get; set; }
@@ -54,7 +54,7 @@ namespace Domain.Entities.Common
             SetBaCreatedTimeToNow();
             BaGuid = Guid.NewGuid();
             CreateDate = DateTime.Now;
-            ModifyDate = DateTime.Now;
+            ModifyDate = DateTime.Now.ToString();
             IsDeleted = false;
         }
 
@@ -63,7 +63,7 @@ namespace Domain.Entities.Common
         /// </summary>
         public virtual void PrepareForUpdate()
         {
-            ModifyDate = DateTime.Now;
+            ModifyDate = DateTime.Now.ToString();
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Domain.Entities.Common
         public virtual void SoftDelete()
         {
             IsDeleted = true;
-            ModifyDate = DateTime.Now;
+            ModifyDate = DateTime.Now.ToString();
         }
     }
 

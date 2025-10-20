@@ -165,5 +165,18 @@ namespace Infrastructure
 
 
         }
+
+        public long GetLastId<TEntity>(string idPropertyName = "Id") where TEntity : class
+        {
+            var lastItem = Set<TEntity>().OrderBy(e => EF.Property<long>(e, idPropertyName)).LastOrDefault();
+            if (lastItem == null)
+                return 0;
+
+            var propertyInfo = typeof(TEntity).GetProperty(idPropertyName);
+            if (propertyInfo == null)
+                throw new InvalidOperationException($"Property {idPropertyName} not found on type {typeof(TEntity).Name}");
+
+            return (long)propertyInfo.GetValue(lastItem);
+        }
     }
 }

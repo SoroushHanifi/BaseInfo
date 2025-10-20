@@ -20,9 +20,9 @@ namespace Application.CQRS
         string? Icon = null,
         string? Color = null,
         int DisplayOrder = 0
-    ) : IRequest<int>;
+    ) : IRequest<long>;
 
-    public class CreateServiceFeatureCommandHandler : IRequestHandler<CreateServiceFeatureCommand, int>
+    public class CreateServiceFeatureCommandHandler : IRequestHandler<CreateServiceFeatureCommand, long>
     {
         private readonly DarooDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -41,7 +41,7 @@ namespace Application.CQRS
             _appSettingsOption = appSettingOption.Value;
         }
 
-        public async Task<int> Handle(CreateServiceFeatureCommand request, CancellationToken cancellationToken)
+        public async Task<long> Handle(CreateServiceFeatureCommand request, CancellationToken cancellationToken)
         {
             // دریافت اطلاعات کاربر
             var token = _httpContextAccessor.HttpContext?.Request.Cookies[_appSettingsOption.Settings.CookieInfo.Name];
@@ -52,6 +52,7 @@ namespace Application.CQRS
 
             var serviceFeature = new ServiceFeature
             {
+                Id = _context.GetLastId<ServiceFeature>() + 1,
                 Name = request.Name,
                 Description = request.Description,
                 Code = request.Code,
@@ -60,7 +61,7 @@ namespace Application.CQRS
                 DisplayOrder = request.DisplayOrder,
                 CreateUserId = result.Data.NationalCode,
                 CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now
+                ModifyDate = DateTime.Now.ToString()
             };
 
             _context.ServiceFeatures.Add(serviceFeature);
@@ -106,7 +107,7 @@ namespace Application.CQRS
             serviceFeature.Color = request.Color;
             serviceFeature.DisplayOrder = request.DisplayOrder;
             serviceFeature.IsActive = request.IsActive;
-            serviceFeature.ModifyDate = DateTime.Now;
+            serviceFeature.ModifyDate = DateTime.Now.ToString();
 
             _context.ServiceFeatures.Update(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
@@ -135,7 +136,7 @@ namespace Application.CQRS
                 return false;
 
             serviceFeature.IsDelete = true;
-            serviceFeature.ModifyDate = DateTime.Now;
+            serviceFeature.ModifyDate = DateTime.Now.ToString();
 
             _context.ServiceFeatures.Update(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
@@ -150,9 +151,9 @@ namespace Application.CQRS
         bool IsActive = true,
         int DisplayOrder = 0,
         string? Notes = null
-    ) : IRequest<int>;
+    ) : IRequest<long>;
 
-    public class AssignServiceFeatureToMainTitleCommandHandler : IRequestHandler<AssignServiceFeatureToMainTitleCommand, int>
+    public class AssignServiceFeatureToMainTitleCommandHandler : IRequestHandler<AssignServiceFeatureToMainTitleCommand, long>
     {
         private readonly DarooDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -171,7 +172,7 @@ namespace Application.CQRS
             _appSettingsOption = appSettingOption.Value;
         }
 
-        public async Task<int> Handle(AssignServiceFeatureToMainTitleCommand request, CancellationToken cancellationToken)
+        public async Task<long> Handle(AssignServiceFeatureToMainTitleCommand request, CancellationToken cancellationToken)
         {
             // بررسی وجود رابطه قبلی (حذف نشده)
             var existingRelation = await _context.MainTitleServiceFeatures
@@ -199,7 +200,7 @@ namespace Application.CQRS
                 ActivatedDate = request.IsActive ? DateTime.Now : null,
                 CreateUserId = result.Data.NationalCode,
                 CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now
+                ModifyDate = DateTime.Now.ToString()
             };
 
             _context.MainTitleServiceFeatures.Add(relation);
@@ -251,7 +252,7 @@ namespace Application.CQRS
             relation.IsActive = request.IsActive;
             relation.DisplayOrder = request.DisplayOrder;
             relation.Notes = request.Notes;
-            relation.ModifyDate = DateTime.Now;
+            relation.ModifyDate = DateTime.Now.ToString();
 
             _context.MainTitleServiceFeatures.Update(relation);
             await _context.SaveChangesAsync(cancellationToken);
@@ -281,7 +282,7 @@ namespace Application.CQRS
 
             relation.IsDelete = true;
             relation.DeactivatedDate = DateTime.Now;
-            relation.ModifyDate = DateTime.Now;
+            relation.ModifyDate = DateTime.Now.ToString();
 
             _context.MainTitleServiceFeatures.Update(relation);
             await _context.SaveChangesAsync(cancellationToken);

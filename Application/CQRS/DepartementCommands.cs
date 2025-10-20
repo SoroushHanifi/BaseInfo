@@ -52,6 +52,7 @@ namespace Application.CQRS
 
             var department = new Department
             {
+                Id = _context.GetLastId<Department>() + 1,
                 Name = request.Name,
                 CreateUserID = int.Parse(result.Data.NationalCode)
             };

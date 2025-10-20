@@ -63,7 +63,7 @@ namespace Infrastructure.Extensions
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10008;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
             entity.IsDeleted = false;
 
             if (userId.HasValue)
@@ -79,7 +79,7 @@ namespace Infrastructure.Extensions
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10009;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
             entity.IsDeleted = false;
 
             if (userId.HasValue)
@@ -95,7 +95,7 @@ namespace Infrastructure.Extensions
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10012;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
             entity.IsDeleted = false;
 
             if (userId.HasValue)
@@ -111,7 +111,7 @@ namespace Infrastructure.Extensions
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10011;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
             entity.IsDeleted = false;
         }
 
@@ -120,7 +120,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this Department entity)
         {
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this Scope entity)
         {
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this MainTitle entity)
         {
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this ProductType entity)
         {
-            entity.ModifyDate = DateTime.Now;
+            entity.ModifyDate = DateTime.Now.ToString();
         }
     }
 }

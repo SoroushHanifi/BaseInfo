@@ -74,8 +74,10 @@ namespace Application.CQRS
             if (result.IsSuccess is false || result.Data is null)
                 throw new AppException(Messages.UserNotFound);
 
+            
             var mainTitle = new MainTitle
             {
+                Id = _context.GetLastId<MainTitle>() + 1,
                 Name = request.Name,
                 Description = request.Description,
                 Amount = request.Amount,

@@ -20,7 +20,7 @@ namespace Application.CQRS
         public long? BpmType { get; set; }
         public long? CreateUserID { get; set; }
         public DateTime? CreateDate { get; set; }
-        public DateTime? ModifyDate { get; set; }
+        public string? ModifyDate { get; set; }
         public bool? IsDeleted { get; set; }
         public int FinalEnt { get; set; }
         public long BaCreatedTime { get; set; }
