@@ -41,6 +41,9 @@ namespace Application.CQRS
                     BaGuid = pt.BaGuid
                 })
                 .ToListAsync(cancellationToken);
+
+
+
         }
     }
     #endregion
