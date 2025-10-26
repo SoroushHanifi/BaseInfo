@@ -11,7 +11,7 @@ namespace Domain.Entities.Common
         public long Id { get; set; }
         public string CreateUserId { get; set; }
         public DateTime CreateDate { get; set; }
-        public string ModifyDate { get; set; }
+        public DateTime ModifyDate { get; set; }
         public bool IsDelete { get; set; }
     }
 }

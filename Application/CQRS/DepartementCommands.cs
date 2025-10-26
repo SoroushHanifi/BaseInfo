@@ -54,7 +54,7 @@ namespace Application.CQRS
             {
                 Id = _context.GetLastId<Department>() + 1,
                 Name = request.Name,
-                CreateUserID = int.Parse(result.Data.NationalCode)
+                CreateUserID = result.Data.NationalCode
             };
 
             department.PrepareForCreation(); // از base class استفاده می‌کنیم

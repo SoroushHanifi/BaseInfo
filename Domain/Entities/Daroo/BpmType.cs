@@ -21,7 +21,7 @@ namespace Domain.Entities.Daroo
         public string? Name { get; set; }
 
         [Column("CreateUserID")]
-        public long? CreateUserID { get; set; }
+        public string? CreateUserID { get; set; }
 
         public override void PrepareForCreation()
         {

@@ -84,7 +84,7 @@ namespace Application.CQRS
                 ScopesId = request.ScopeId,
                 DisplayOrder = request.DisplayOrder,
                 BpmType = request.BpmType,
-                CreateUserID = long.Parse(result.Data.NationalCode)
+                CreateUserID = result.Data.NationalCode
             };
 
             mainTitle.PrepareForCreation();

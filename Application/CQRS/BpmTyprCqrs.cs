@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.OptionPatternModel;
+using Application.Refits;
+using Domain;
 using Domain.Entities.Daroo;
 using Infrastructure;
+using Infrastructure.Exceptions;
+using Infrastructure.Utility;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Application.CQRS
 {
@@ -77,14 +84,32 @@ namespace Application.CQRS
     public class CreateBpmTypeCommandHandler : IRequestHandler<CreateBpmTypeCommand, BpmType>
     {
         private readonly DarooDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IClaimHelper _claimHelper;
+        private readonly ISSOClient _sSOClient;
+        private readonly AppSettingsOption _appSettingsOption;
 
-        public CreateBpmTypeCommandHandler(DarooDbContext context)
+        public CreateBpmTypeCommandHandler(
+            IClaimHelper claimHelper,
+            ISSOClient sSOClient,
+            DarooDbContext context,
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<AppSettingsOption> appSettingOption)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            _claimHelper = claimHelper;
+            _sSOClient = sSOClient;
+            _appSettingsOption = appSettingOption.Value;
         }
 
         public async Task<BpmType> Handle(CreateBpmTypeCommand request, CancellationToken cancellationToken)
         {
+            var token = _httpContextAccessor.HttpContext?.Request.Cookies[_appSettingsOption.Settings.CookieInfo.Name];
+            var result = await _sSOClient.GetCurrentUser($"{_appSettingsOption.Settings.CookieInfo.Name}=" + token);
+
+            if (result.IsSuccess is false || result.Data is null)
+                throw new AppException(Messages.UserNotFound);
             // Check for duplicate name
             var exists = await _context.BpmTypes
                 .AnyAsync(pt => pt.Name == request.Name && pt.IsDeleted != true, cancellationToken);
@@ -96,8 +121,10 @@ namespace Application.CQRS
 
             var bpmType = new BpmType
             {
+                Id = _context.GetLastId<BpmType>() + 1,
                 Name = request.Name,
                 CreateDate = DateTime.Now,
+                CreateUserID = result.Data.UserName,
                 IsDeleted = false
             };
 
@@ -141,7 +168,7 @@ namespace Application.CQRS
             }
 
             bpmType.Name = request.Name;
-            bpmType.ModifyDate = DateTime.Now.ToString();
+            bpmType.ModifyDate = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -174,7 +201,7 @@ namespace Application.CQRS
 
             // Soft delete
             bpmType.IsDeleted = true;
-            bpmType.ModifyDate = DateTime.Now.ToString();
+            bpmType.ModifyDate = DateTime.Now;
 
             await _context.SaveChangesAsync(cancellationToken);
 

@@ -68,7 +68,7 @@ namespace Application.CQRS
                 Id = _context.GetLastId<Scope>() + 1,
                 Name = request.Name,
                 DepartmentId = request.DepartmentId,
-                CreateUserID = long.Parse(result.Data.NationalCode)
+                CreateUserID = result.Data.NationalCode
             };
 
             scope.PrepareForCreation();

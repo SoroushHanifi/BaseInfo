@@ -21,7 +21,7 @@ namespace Domain.Entities.Daroo
         public string? Name { get; set; }
 
         [Column("CreateUserID")]
-        public int? CreateUserID { get; set; }
+        public string? CreateUserID { get; set; }
 
         // Navigation Properties
         public virtual ICollection<Scope> Scopes { get; set; } = new List<Scope>();

@@ -33,7 +33,7 @@ namespace Domain.Entities.Daroo
         public string? DisplayOrder { get; set; }
 
         [Column("CreateUserID")]
-        public long? CreateUserID { get; set; }
+        public string? CreateUserID { get; set; }
 
         [Column("BpmType")]
         public long? BpmType { get; set; }

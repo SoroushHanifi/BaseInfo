@@ -61,7 +61,7 @@ namespace Application.CQRS
                 DisplayOrder = request.DisplayOrder,
                 CreateUserId = result.Data.NationalCode,
                 CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now.ToString()
+                ModifyDate = DateTime.Now
             };
 
             _context.ServiceFeatures.Add(serviceFeature);
@@ -107,7 +107,7 @@ namespace Application.CQRS
             serviceFeature.Color = request.Color;
             serviceFeature.DisplayOrder = request.DisplayOrder;
             serviceFeature.IsActive = request.IsActive;
-            serviceFeature.ModifyDate = DateTime.Now.ToString();
+            serviceFeature.ModifyDate = DateTime.Now;
 
             _context.ServiceFeatures.Update(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
@@ -136,7 +136,7 @@ namespace Application.CQRS
                 return false;
 
             serviceFeature.IsDelete = true;
-            serviceFeature.ModifyDate = DateTime.Now.ToString();
+            serviceFeature.ModifyDate = DateTime.Now;
 
             _context.ServiceFeatures.Update(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
@@ -200,7 +200,7 @@ namespace Application.CQRS
                 ActivatedDate = request.IsActive ? DateTime.Now : null,
                 CreateUserId = result.Data.NationalCode,
                 CreateDate = DateTime.Now,
-                ModifyDate = DateTime.Now.ToString()
+                ModifyDate = DateTime.Now
             };
 
             _context.MainTitleServiceFeatures.Add(relation);
@@ -252,7 +252,7 @@ namespace Application.CQRS
             relation.IsActive = request.IsActive;
             relation.DisplayOrder = request.DisplayOrder;
             relation.Notes = request.Notes;
-            relation.ModifyDate = DateTime.Now.ToString();
+            relation.ModifyDate = DateTime.Now;
 
             _context.MainTitleServiceFeatures.Update(relation);
             await _context.SaveChangesAsync(cancellationToken);
@@ -282,7 +282,7 @@ namespace Application.CQRS
 
             relation.IsDelete = true;
             relation.DeactivatedDate = DateTime.Now;
-            relation.ModifyDate = DateTime.Now.ToString();
+            relation.ModifyDate = DateTime.Now;
 
             _context.MainTitleServiceFeatures.Update(relation);
             await _context.SaveChangesAsync(cancellationToken);

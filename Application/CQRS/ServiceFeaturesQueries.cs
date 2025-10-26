@@ -17,7 +17,7 @@ namespace Application.CQRS
         public bool IsActive { get; set; }
         public bool IsDelete { get; set; }
         public DateTime CreateDate { get; set; }
-        public string ModifyDate { get; set; }
+        public DateTime ModifyDate { get; set; }
         public string CreateUserId { get; set; } = string.Empty;
     }
 

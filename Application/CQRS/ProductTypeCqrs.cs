@@ -22,7 +22,7 @@ namespace Application.CQRS
         public long? MainTitleID { get; set; }
         public string MainTitleName { get; set; } = string.Empty;
         public DateTime? CreateDate { get; set; }
-        public string? ModifyDate { get; set; }
+        public DateTime? ModifyDate { get; set; }
         public bool? IsDeleted { get; set; }
         public int FinalEnt { get; set; }
         public long BaCreatedTime { get; set; }

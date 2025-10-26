@@ -57,49 +57,49 @@ namespace Infrastructure.Extensions
         /// <summary>
         /// Prepares entity for creation by setting required Bizagi fields
         /// </summary>
-        public static void PrepareForCreation(this Department entity, int? userId = null)
+        public static void PrepareForCreation(this Department entity, string? userId = null)
         {
             entity.SetBaCreatedTimeToNow();
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10008;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
             entity.IsDeleted = false;
 
-            if (userId.HasValue)
-                entity.CreateUserID = userId.Value;
+            if (userId != null)
+                entity.CreateUserID = userId;
         }
 
         /// <summary>
         /// Prepares entity for creation by setting required Bizagi fields
         /// </summary>
-        public static void PrepareForCreation(this Scope entity, long? userId = null)
+        public static void PrepareForCreation(this Scope entity, string? userId = null)
         {
             entity.SetBaCreatedTimeToNow();
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10009;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
             entity.IsDeleted = false;
 
-            if (userId.HasValue)
-                entity.CreateUserID = userId.Value;
+            if (userId != null)
+                entity.CreateUserID = userId;
         }
 
         /// <summary>
         /// Prepares entity for creation by setting required Bizagi fields
         /// </summary>
-        public static void PrepareForCreation(this MainTitle entity, long? userId = null)
+        public static void PrepareForCreation(this MainTitle entity, string? userId = null)
         {
             entity.SetBaCreatedTimeToNow();
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10012;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
             entity.IsDeleted = false;
 
-            if (userId.HasValue)
-                entity.CreateUserID = userId.Value;
+            if (userId != null)
+                entity.CreateUserID = userId;
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Infrastructure.Extensions
             entity.BaGuid = Guid.NewGuid();
             entity.FinalEnt = 10011;
             entity.CreateDate = DateTime.Now;
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
             entity.IsDeleted = false;
         }
 
@@ -120,7 +120,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this Department entity)
         {
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this Scope entity)
         {
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this MainTitle entity)
         {
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Infrastructure.Extensions
         /// </summary>
         public static void PrepareForUpdate(this ProductType entity)
         {
-            entity.ModifyDate = DateTime.Now.ToString();
+            entity.ModifyDate = DateTime.Now;
         }
     }
 }

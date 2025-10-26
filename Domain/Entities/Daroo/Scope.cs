@@ -22,7 +22,7 @@ namespace Domain.Entities.Daroo
         public long? DepartmentId { get; set; }
 
         [Column("CreateUserID")]
-        public long? CreateUserID { get; set; }
+        public string? CreateUserID { get; set; }
 
         // Navigation Properties
         [ForeignKey("DepartmentId")]
