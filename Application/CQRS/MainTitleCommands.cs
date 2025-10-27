@@ -1,4 +1,5 @@
-﻿using Application.OptionPatternModel;
+﻿using Application.Models;
+using Application.OptionPatternModel;
 using Application.Refits;
 using Domain;
 using Domain.Entities.Daroo;
@@ -10,18 +11,20 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Linq;
 
 namespace Application.CQRS
 {
     // ===== CREATE COMMAND =====
     public record CreateMainTitleCommand(
-         string Name,
-         string? Description,
-         decimal Amount,
-         long ScopeId,
-         string? DisplayOrder = "0",
-         long? BpmType = null
-     ) : IRequest<long>;
+     string Name,
+     string? Description,
+     decimal Amount,
+     long ScopeId,
+     string? DisplayOrder = "0",
+     long? BpmType = null,
+     List<MainTitleServiceFeatureInput>? ServiceFeatures = null  // 👈 اضافه شد
+ ) : IRequest<long>;
 
     public class CreateMainTitleCommandHandler : IRequestHandler<CreateMainTitleCommand, long>
     {
@@ -63,9 +66,21 @@ namespace Application.CQRS
             if (nameExists)
                 throw new AppException("نام عنوان اصلی در این حوزه تکراری است");
 
-            // بررسی مبلغ (نباید منفی باشد)
+            // بررسی مبلغ
             if (request.Amount < 0)
                 throw new AppException("مبلغ نمی‌تواند منفی باشد");
+
+            // 👇 بررسی معتبر بودن ServiceFeatureها
+            if (request.ServiceFeatures != null && request.ServiceFeatures.Any())
+            {
+                var serviceFeatureIds = request.ServiceFeatures.Select(sf => sf.ServiceFeatureId).ToList();
+                var existingServiceFeaturesCount = await _context.ServiceFeatures
+                    .Where(sf => serviceFeatureIds.Contains(sf.Id) && !sf.IsDelete)
+                    .CountAsync(cancellationToken);
+
+                if (existingServiceFeaturesCount != serviceFeatureIds.Count)
+                    throw new AppException("برخی از ویژگی‌های خدمات وارد شده معتبر نیستند");
+            }
 
             // دریافت اطلاعات کاربر
             var token = _httpContextAccessor.HttpContext?.Request.Cookies[_appSettingsOption.Settings.CookieInfo.Name];
@@ -74,7 +89,7 @@ namespace Application.CQRS
             if (result.IsSuccess is false || result.Data is null)
                 throw new AppException(Messages.UserNotFound);
 
-            
+            // ساخت MainTitle
             var mainTitle = new MainTitle
             {
                 Id = _context.GetLastId<MainTitle>() + 1,
@@ -88,10 +103,33 @@ namespace Application.CQRS
             };
 
             mainTitle.PrepareForCreation();
-
             _context.MainTitles.Add(mainTitle);
-            await _context.SaveChangesAsync(cancellationToken);
 
+            // 👇 اضافه کردن ServiceFeature‌ها
+            if (request.ServiceFeatures != null && request.ServiceFeatures.Any())
+            {
+                foreach (var sfInput in request.ServiceFeatures)
+                {
+                    var mainTitleServiceFeature = new MainTitleServiceFeature
+                    {
+                        Id = _context.GetLastId<MainTitleServiceFeature>() + 1,
+                        MainTitleId = (int)mainTitle.Id,
+                        ServiceFeatureId = sfInput.ServiceFeatureId,
+                        IsActive = sfInput.IsActive,
+                        DisplayOrder = sfInput.DisplayOrder,
+                        Notes = sfInput.Notes,
+                        ActivatedDate = sfInput.IsActive ? DateTime.Now : null,
+                        CreateUserId = result.Data.NationalCode,
+                        CreateDate = DateTime.Now,
+                        ModifyDate = DateTime.Now,
+                        IsDelete = false
+                    };
+
+                    _context.MainTitleServiceFeatures.Add(mainTitleServiceFeature);
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
             return mainTitle.Id;
         }
     }

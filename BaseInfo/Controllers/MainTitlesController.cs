@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.CQRS;
 using Application.Models;
+using Infrastructure.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -293,7 +294,8 @@ namespace BaseInfo.Controllers
                     request.Amount,
                     request.ScopeId,
                     request.DisplayOrder,
-                    request.BpmType
+                    request.BpmType,
+                    request.ServiceFeatures  // 👈 اضافه شد
                 );
 
                 var mainTitleId = await _mediator.Send(command);
@@ -308,6 +310,15 @@ namespace BaseInfo.Controllers
                         Message = "عنوان اصلی با موفقیت ایجاد شد",
                         Data = mainTitleId
                     });
+            }
+            catch (AppException ex)
+            {
+                return BadRequest(new ResultApi
+                {
+                    StatusCode = 400,
+                    IsSuccess = false,
+                    Message = ex.Message
+                });
             }
             catch (Exception ex)
             {
@@ -428,6 +439,11 @@ namespace BaseInfo.Controllers
         public string? DisplayOrder { get; set; } = "0";
 
         public long? BpmType { get; set; }
+
+        /// <summary>
+        /// لیست ویژگی‌های خدمات مرتبط با این عنوان اصلی
+        /// </summary>
+        public List<MainTitleServiceFeatureInput>? ServiceFeatures { get; set; }
     }
     public class UpdateMainTitleRequest
     {

@@ -35,7 +35,7 @@ namespace Application.CQRS
         public long Id { get; set; }
         public int MainTitleId { get; set; }
         public string MainTitleName { get; set; } = string.Empty;
-        public int ServiceFeatureId { get; set; }
+        public long ServiceFeatureId { get; set; }
         public string ServiceFeatureName { get; set; } = string.Empty;
         public string? ServiceFeatureIcon { get; set; }
         public string? ServiceFeatureColor { get; set; }

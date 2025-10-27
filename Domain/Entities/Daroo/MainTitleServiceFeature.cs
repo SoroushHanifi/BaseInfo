@@ -21,7 +21,7 @@ namespace Domain.Entities.Daroo
         /// <summary>
         /// شناسه ویژگی خدمات
         /// </summary>
-        public int ServiceFeatureId { get; set; }
+        public long ServiceFeatureId { get; set; }
 
         /// <summary>
         /// Navigation Property - ویژگی خدمات مربوطه
