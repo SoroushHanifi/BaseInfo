@@ -91,7 +91,7 @@ namespace Infrastructure
                 entity.Property(e => e.Name).HasColumnName("Name").HasMaxLength(50);
                 entity.Property(e => e.Description).HasColumnName("Description").HasMaxLength(150);
                 entity.Property(e => e.Amount).HasColumnName("Amount").HasColumnType("money");
-                entity.Property(e => e.ScopesId).HasColumnName("ScopesId");
+                entity.Property(e => e.ScopesId).HasColumnName("Scopes");
                 entity.Property(e => e.DisplayOrder).HasColumnName("DisplayOrder").HasMaxLength(50);
                 entity.Property(e => e.CreateUserID).HasColumnName("CreateUserID");
                 entity.Property(e => e.CreateDate).HasColumnName("CreateDate");

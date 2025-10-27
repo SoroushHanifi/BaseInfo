@@ -25,7 +25,7 @@ namespace Domain.Entities.Daroo
         [Column("Amount")]
         public decimal? Amount { get; set; }
 
-        [Column("ScopesId")]
+        [Column("Scopes")]
         public long? ScopesId { get; set; }
 
         [Column("DisplayOrder")]
