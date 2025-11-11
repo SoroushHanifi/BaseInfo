@@ -8,9 +8,7 @@ namespace Application.Models
 {
     public class MainTitleServiceFeatureInput
     {
-        public long ServiceFeatureId { get; set; }
+        public long ServiceFeature { get; set; }
         public bool IsActive { get; set; }
-        public int DisplayOrder { get; set; } = 0;
-        public string? Notes { get; set; }
     }
 }

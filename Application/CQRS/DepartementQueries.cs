@@ -35,9 +35,9 @@ namespace Application.CQRS
 
     public class GetAllDepartmentsQueryHandler : IRequestHandler<GetAllDepartmentsQuery, List<DepartmentDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllDepartmentsQueryHandler(DarooDbContext context)
+        public GetAllDepartmentsQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -67,9 +67,9 @@ namespace Application.CQRS
 
     public class GetDepartmentByIdQueryHandler : IRequestHandler<GetDepartmentByIdQuery, DepartmentDto?>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetDepartmentByIdQueryHandler(DarooDbContext context)
+        public GetDepartmentByIdQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -98,9 +98,9 @@ namespace Application.CQRS
 
     public class GetActiveDepartmentsQueryHandler : IRequestHandler<GetActiveDepartmentsQuery, List<DepartmentDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetActiveDepartmentsQueryHandler(DarooDbContext context)
+        public GetActiveDepartmentsQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -130,9 +130,9 @@ namespace Application.CQRS
 
     public class GetAllDepartmentsPaginationQueryHandler : IRequestHandler<GetAllDepartmentsPaginationQuery, PagedData<DepartmentDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllDepartmentsPaginationQueryHandler(DarooDbContext context)
+        public GetAllDepartmentsPaginationQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -185,9 +185,9 @@ namespace Application.CQRS
 
     public class SearchDepartmentsQueryHandler : IRequestHandler<SearchDepartmentsQuery, List<DepartmentDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public SearchDepartmentsQueryHandler(DarooDbContext context)
+        public SearchDepartmentsQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }

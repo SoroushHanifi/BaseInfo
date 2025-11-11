@@ -18,7 +18,7 @@ namespace Application.CQRS
 
     public class CreateScopeCommandHandler : IRequestHandler<CreateScopeCommand, long>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClaimHelper _claimHelper;
         private readonly ISSOClient _sSOClient;
@@ -27,7 +27,7 @@ namespace Application.CQRS
         public CreateScopeCommandHandler(
             IClaimHelper claimHelper,
             ISSOClient sSOClient,
-            DarooDbContext context,
+            ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             IOptions<AppSettingsOption> appSettingOption)
         {
@@ -84,9 +84,9 @@ namespace Application.CQRS
 
     public class UpdateScopeCommandHandler : IRequestHandler<UpdateScopeCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateScopeCommandHandler(DarooDbContext context)
+        public UpdateScopeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -122,9 +122,9 @@ namespace Application.CQRS
 
     public class DeleteScopeCommandHandler : IRequestHandler<DeleteScopeCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteScopeCommandHandler(DarooDbContext context)
+        public DeleteScopeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }

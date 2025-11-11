@@ -24,9 +24,9 @@ namespace Application.CQRS
 
     public class GetAllBpmTypeQueryHandler : IRequestHandler<GetAllBpmTypeQuery, List<BpmType>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllBpmTypeQueryHandler(DarooDbContext context)
+        public GetAllBpmTypeQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -60,9 +60,9 @@ namespace Application.CQRS
 
     public class GetBpmTypeByIdQueryHandler : IRequestHandler<GetBpmTypeByIdQuery, BpmType?>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetBpmTypeByIdQueryHandler(DarooDbContext context)
+        public GetBpmTypeByIdQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -83,7 +83,7 @@ namespace Application.CQRS
 
     public class CreateBpmTypeCommandHandler : IRequestHandler<CreateBpmTypeCommand, BpmType>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClaimHelper _claimHelper;
         private readonly ISSOClient _sSOClient;
@@ -92,7 +92,7 @@ namespace Application.CQRS
         public CreateBpmTypeCommandHandler(
             IClaimHelper claimHelper,
             ISSOClient sSOClient,
-            DarooDbContext context,
+            ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             IOptions<AppSettingsOption> appSettingOption)
         {
@@ -141,9 +141,9 @@ namespace Application.CQRS
 
     public class UpdateBpmTypeCommandHandler : IRequestHandler<UpdateBpmTypeCommand, BpmType>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateBpmTypeCommandHandler(DarooDbContext context)
+        public UpdateBpmTypeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -182,9 +182,9 @@ namespace Application.CQRS
 
     public class DeleteBpmTypeCommandHandler : IRequestHandler<DeleteBpmTypeCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteBpmTypeCommandHandler(DarooDbContext context)
+        public DeleteBpmTypeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }

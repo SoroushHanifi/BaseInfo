@@ -8,11 +8,8 @@
 
   <ItemGroup>
     <Compile Remove="Dtos\**" />
-    <Compile Remove="Services\**" />
     <EmbeddedResource Remove="Dtos\**" />
-    <EmbeddedResource Remove="Services\**" />
     <None Remove="Dtos\**" />
-    <None Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +38,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

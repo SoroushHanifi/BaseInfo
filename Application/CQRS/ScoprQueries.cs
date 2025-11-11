@@ -36,9 +36,9 @@ namespace Application.CQRS
 
     public class GetAllScopesQueryHandler : IRequestHandler<GetAllScopesQuery, List<ScopeDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllScopesQueryHandler(DarooDbContext context)
+        public GetAllScopesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -73,9 +73,9 @@ namespace Application.CQRS
 
     public class GetAllScopespaginationQueryHandler : IRequestHandler<GetAllScopesPaginationQuery, PagedData<ScopeDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllScopespaginationQueryHandler(DarooDbContext context)
+        public GetAllScopespaginationQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -130,9 +130,9 @@ namespace Application.CQRS
 
     public class GetScopeByIdQueryHandler : IRequestHandler<GetScopeByIdQuery, ScopeDto?>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetScopeByIdQueryHandler(DarooDbContext context)
+        public GetScopeByIdQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -164,9 +164,9 @@ namespace Application.CQRS
 
     public class GetScopesByDepartmentIdQueryHandler : IRequestHandler<GetScopesByDepartmentIdQuery, PagedData<ScopeSimpleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetScopesByDepartmentIdQueryHandler(DarooDbContext context)
+        public GetScopesByDepartmentIdQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -212,9 +212,9 @@ namespace Application.CQRS
 
     public class GetActiveScopesQueryHandler : IRequestHandler<GetActiveScopesQuery, List<ScopeDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetActiveScopesQueryHandler(DarooDbContext context)
+        public GetActiveScopesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -248,9 +248,9 @@ namespace Application.CQRS
 
     public class SearchScopesQueryHandler : IRequestHandler<SearchScopesQuery, List<ScopeDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public SearchScopesQueryHandler(DarooDbContext context)
+        public SearchScopesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }

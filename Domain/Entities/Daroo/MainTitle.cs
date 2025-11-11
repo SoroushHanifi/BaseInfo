@@ -22,9 +22,6 @@ namespace Domain.Entities.Daroo
         [MaxLength(150)]
         public string? Description { get; set; }
 
-        [Column("Amount")]
-        public decimal? Amount { get; set; }
-
         [Column("Scopes")]
         public long? ScopesId { get; set; }
 

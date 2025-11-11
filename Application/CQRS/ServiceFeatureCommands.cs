@@ -24,13 +24,13 @@ namespace Application.CQRS
 
     public class CreateServiceFeatureCommandHandler : IRequestHandler<CreateServiceFeatureCommand, long>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISSOClient _sSOClient;
         private readonly AppSettingsOption _appSettingsOption;
 
         public CreateServiceFeatureCommandHandler(
-            DarooDbContext context,
+            ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             ISSOClient sSOClient,
             IOptions<AppSettingsOption> appSettingOption)
@@ -55,16 +55,12 @@ namespace Application.CQRS
                 Id = _context.GetLastId<ServiceFeature>() + 1,
                 Name = request.Name,
                 Description = request.Description,
-                Code = request.Code,
-                Icon = request.Icon,
-                Color = request.Color,
-                DisplayOrder = request.DisplayOrder,
                 CreateUserId = result.Data.NationalCode,
                 CreateDate = DateTime.Now,
                 ModifyDate = DateTime.Now
             };
 
-            _context.ServiceFeatures.Add(serviceFeature);
+            _context.ServiceFeature.Add(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
 
             return serviceFeature.Id;
@@ -85,31 +81,26 @@ namespace Application.CQRS
 
     public class UpdateServiceFeatureCommandHandler : IRequestHandler<UpdateServiceFeatureCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateServiceFeatureCommandHandler(DarooDbContext context)
+        public UpdateServiceFeatureCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
 
         public async Task<bool> Handle(UpdateServiceFeatureCommand request, CancellationToken cancellationToken)
         {
-            var serviceFeature = await _context.ServiceFeatures
-                .FirstOrDefaultAsync(sf => sf.Id == request.Id && !sf.IsDelete, cancellationToken);
+            var serviceFeature = await _context.ServiceFeature
+                .FirstOrDefaultAsync(sf => sf.Id == request.Id && !sf.IsDeleted, cancellationToken);
 
             if (serviceFeature == null)
                 return false;
 
             serviceFeature.Name = request.Name;
-            serviceFeature.Description = request.Description;
-            serviceFeature.Code = request.Code;
-            serviceFeature.Icon = request.Icon;
-            serviceFeature.Color = request.Color;
-            serviceFeature.DisplayOrder = request.DisplayOrder;
             serviceFeature.IsActive = request.IsActive;
             serviceFeature.ModifyDate = DateTime.Now;
 
-            _context.ServiceFeatures.Update(serviceFeature);
+            _context.ServiceFeature.Update(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
@@ -120,25 +111,25 @@ namespace Application.CQRS
 
     public class DeleteServiceFeatureCommandHandler : IRequestHandler<DeleteServiceFeatureCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteServiceFeatureCommandHandler(DarooDbContext context)
+        public DeleteServiceFeatureCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
 
         public async Task<bool> Handle(DeleteServiceFeatureCommand request, CancellationToken cancellationToken)
         {
-            var serviceFeature = await _context.ServiceFeatures
-                .FirstOrDefaultAsync(sf => sf.Id == request.Id && !sf.IsDelete, cancellationToken);
+            var serviceFeature = await _context.ServiceFeature
+                .FirstOrDefaultAsync(sf => sf.Id == request.Id && !sf.IsDeleted, cancellationToken);
 
             if (serviceFeature == null)
                 return false;
 
-            serviceFeature.IsDelete = true;
+            serviceFeature.IsDeleted = true;
             serviceFeature.ModifyDate = DateTime.Now;
 
-            _context.ServiceFeatures.Update(serviceFeature);
+            _context.ServiceFeature.Update(serviceFeature);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
@@ -147,7 +138,7 @@ namespace Application.CQRS
     // ===== ASSIGN SERVICEFEATURE TO MAINTITLE COMMAND =====
     public record AssignServiceFeatureToMainTitleCommand(
         int MainTitleId,
-        int ServiceFeatureId,
+        int ServiceFeature,
         bool IsActive = true,
         int DisplayOrder = 0,
         string? Notes = null
@@ -155,13 +146,13 @@ namespace Application.CQRS
 
     public class AssignServiceFeatureToMainTitleCommandHandler : IRequestHandler<AssignServiceFeatureToMainTitleCommand, long>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISSOClient _sSOClient;
         private readonly AppSettingsOption _appSettingsOption;
 
         public AssignServiceFeatureToMainTitleCommandHandler(
-            DarooDbContext context,
+            ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             ISSOClient sSOClient,
             IOptions<AppSettingsOption> appSettingOption)
@@ -175,10 +166,10 @@ namespace Application.CQRS
         public async Task<long> Handle(AssignServiceFeatureToMainTitleCommand request, CancellationToken cancellationToken)
         {
             // بررسی وجود رابطه قبلی (حذف نشده)
-            var existingRelation = await _context.MainTitleServiceFeatures
-                .FirstOrDefaultAsync(mtsf => mtsf.MainTitleId == request.MainTitleId &&
-                                            mtsf.ServiceFeatureId == request.ServiceFeatureId &&
-                                            !mtsf.IsDelete, cancellationToken);
+            var existingRelation = await _context.MainTitleServiceFeature
+                .FirstOrDefaultAsync(mtsf => mtsf.MainTitle == request.MainTitleId &&
+                                            mtsf.ServiceFeature == request.ServiceFeature &&
+                                            !mtsf.IsDeleted, cancellationToken);
 
             if (existingRelation != null)
                 throw new AppException("این ویژگی قبلاً به این عنوان اصلی اختصاص داده شده است");
@@ -192,18 +183,15 @@ namespace Application.CQRS
 
             var relation = new MainTitleServiceFeature
             {
-                MainTitleId = request.MainTitleId,
-                ServiceFeatureId = request.ServiceFeatureId,
+                MainTitle = request.MainTitleId,
+                ServiceFeature = request.ServiceFeature,
                 IsActive = request.IsActive,
-                DisplayOrder = request.DisplayOrder,
-                Notes = request.Notes,
-                ActivatedDate = request.IsActive ? DateTime.Now : null,
                 CreateUserId = result.Data.NationalCode,
                 CreateDate = DateTime.Now,
                 ModifyDate = DateTime.Now
             };
 
-            _context.MainTitleServiceFeatures.Add(relation);
+            _context.MainTitleServiceFeature.Add(relation);
             await _context.SaveChangesAsync(cancellationToken);
 
             return relation.Id;
@@ -220,41 +208,27 @@ namespace Application.CQRS
 
     public class UpdateMainTitleServiceFeatureCommandHandler : IRequestHandler<UpdateMainTitleServiceFeatureCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateMainTitleServiceFeatureCommandHandler(DarooDbContext context)
+        public UpdateMainTitleServiceFeatureCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
 
         public async Task<bool> Handle(UpdateMainTitleServiceFeatureCommand request, CancellationToken cancellationToken)
         {
-            var relation = await _context.MainTitleServiceFeatures
-                .FirstOrDefaultAsync(mtsf => mtsf.Id == request.Id && !mtsf.IsDelete, cancellationToken);
+            var relation = await _context.MainTitleServiceFeature
+                .FirstOrDefaultAsync(mtsf => mtsf.Id == request.Id && !mtsf.IsDeleted, cancellationToken);
 
             if (relation == null)
                 return false;
 
-            // اگر وضعیت تغییر کرد، تاریخ‌ها رو آپدیت کن
-            if (relation.IsActive != request.IsActive)
-            {
-                if (request.IsActive)
-                {
-                    relation.ActivatedDate = DateTime.Now;
-                    relation.DeactivatedDate = null;
-                }
-                else
-                {
-                    relation.DeactivatedDate = DateTime.Now;
-                }
-            }
+         
 
             relation.IsActive = request.IsActive;
-            relation.DisplayOrder = request.DisplayOrder;
-            relation.Notes = request.Notes;
             relation.ModifyDate = DateTime.Now;
 
-            _context.MainTitleServiceFeatures.Update(relation);
+            _context.MainTitleServiceFeature.Update(relation);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
@@ -265,26 +239,25 @@ namespace Application.CQRS
 
     public class RemoveServiceFeatureFromMainTitleCommandHandler : IRequestHandler<RemoveServiceFeatureFromMainTitleCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public RemoveServiceFeatureFromMainTitleCommandHandler(DarooDbContext context)
+        public RemoveServiceFeatureFromMainTitleCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
 
         public async Task<bool> Handle(RemoveServiceFeatureFromMainTitleCommand request, CancellationToken cancellationToken)
         {
-            var relation = await _context.MainTitleServiceFeatures
-                .FirstOrDefaultAsync(mtsf => mtsf.Id == request.Id && !mtsf.IsDelete, cancellationToken);
+            var relation = await _context.MainTitleServiceFeature
+                .FirstOrDefaultAsync(mtsf => mtsf.Id == request.Id && !mtsf.IsDeleted, cancellationToken);
 
             if (relation == null)
                 return false;
 
-            relation.IsDelete = true;
-            relation.DeactivatedDate = DateTime.Now;
+            relation.IsDeleted = true;
             relation.ModifyDate = DateTime.Now;
 
-            _context.MainTitleServiceFeatures.Update(relation);
+            _context.MainTitleServiceFeature.Update(relation);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
         }

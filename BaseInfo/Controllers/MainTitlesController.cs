@@ -18,7 +18,6 @@ namespace BaseInfo.Controllers
     // ===== MAIN TITLES CONTROLLER =====
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class MainTitlesController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -200,7 +199,7 @@ namespace BaseInfo.Controllers
                     });
                 }
 
-                var query = new SearchMainTitlesQuery(searchTerm, scopeId, departmentId, minAmount, maxAmount);
+                var query = new SearchMainTitlesQuery(searchTerm, scopeId, departmentId);
                 var result = await _mediator.Send(query);
                 return Ok(new ResultApi<List<MainTitleDto>>
                 {

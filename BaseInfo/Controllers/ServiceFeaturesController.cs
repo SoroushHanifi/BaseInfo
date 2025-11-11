@@ -9,7 +9,6 @@ namespace BaseInfo.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ServiceFeaturesController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -76,34 +75,9 @@ namespace BaseInfo.Controllers
             return Ok(new ApiResult<List<MainTitleServiceFeatureDto>> { IsSuccess = true, Data = result });
         }
 
-        /// <summary>
-        /// دریافت عناوین اصلی مربوط به یک ویژگی خدمات خاص
-        /// </summary>
-        /// <param name="serviceFeatureId">شناسه ویژگی خدمات</param>
-        /// <param name="activeOnly">فقط روابط فعال (پیش‌فرض false)</param>
-        /// <returns>لیست عناوین اصلی مربوط به ویژگی خدمات</returns>
-        [HttpGet("{serviceFeatureId}/maintitles")]
-        public async Task<ActionResult<List<MainTitleServiceFeatureDto>>> GetMainTitlesByServiceFeature(
-            int serviceFeatureId,
-            [FromQuery] bool activeOnly = false)
-        {
-            var query = new GetMainTitlesByServiceFeatureQuery(serviceFeatureId, activeOnly);
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<List<MainTitleServiceFeatureDto>> { IsSuccess = true, Data = result });
-        }
 
-        /// <summary>
-        /// دریافت تمام روابط بین عناوین اصلی و ویژگی‌های خدمات
-        /// </summary>
-        /// <returns>لیست تمام روابط</returns>
-        [HttpGet("relations")]
-        public async Task<ActionResult<List<MainTitleServiceFeatureDto>>> GetAllRelations()
-        {
-            var query = new GetAllMainTitleServiceFeaturesQuery();
-            var result = await _mediator.Send(query);
-            return Ok(new ApiResult<List<MainTitleServiceFeatureDto>> { IsSuccess = true, Data = result });
-        }
 
+        
         /// <summary>
         /// ایجاد ویژگی خدمات جدید
         /// </summary>
@@ -121,12 +95,12 @@ namespace BaseInfo.Controllers
                 request.DisplayOrder
             );
 
-            var serviceFeatureId = await _mediator.Send(command);
+            var serviceFeature = await _mediator.Send(command);
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = serviceFeatureId },
-                new { Id = serviceFeatureId, Message = "ServiceFeature created successfully" }
+                new { id = serviceFeature },
+                new { Id = serviceFeature, Message = "ServiceFeature created successfully" }
             );
         }
 
@@ -185,7 +159,7 @@ namespace BaseInfo.Controllers
         {
             var command = new AssignServiceFeatureToMainTitleCommand(
                 request.MainTitleId,
-                request.ServiceFeatureId,
+                request.ServiceFeature,
                 request.IsActive,
                 request.DisplayOrder,
                 request.Notes
@@ -354,7 +328,7 @@ namespace BaseInfo.Controllers
         /// </summary>
         [Required(ErrorMessage = "شناسه ویژگی خدمات الزامی است")]
         [Range(1, int.MaxValue, ErrorMessage = "شناسه ویژگی خدمات باید عددی مثبت باشد")]
-        public int ServiceFeatureId { get; set; }
+        public int ServiceFeature { get; set; }
 
         /// <summary>
         /// وضعیت فعال/غیرفعال این ارتباط

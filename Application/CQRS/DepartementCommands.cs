@@ -22,7 +22,7 @@ namespace Application.CQRS
 
     public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, long>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClaimHelper _claimHelper;
         private readonly ISSOClient _sSOClient;
@@ -31,7 +31,7 @@ namespace Application.CQRS
         public CreateDepartmentCommandHandler(
             IClaimHelper claimHelper,
             ISSOClient sSOClient,
-            DarooDbContext context,
+            ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             IOptions<AppSettingsOption> appSettingOption)
         {
@@ -70,9 +70,9 @@ namespace Application.CQRS
 
     public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateDepartmentCommandHandler(DarooDbContext context)
+        public UpdateDepartmentCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -97,9 +97,9 @@ namespace Application.CQRS
 
     public class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteDepartmentCommandHandler(DarooDbContext context)
+        public DeleteDepartmentCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }

@@ -11,13 +11,13 @@ namespace Application.CQRS
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public decimal? Amount { get; set; }
         public long? ScopesId { get; set; }
         public string ScopeName { get; set; } = string.Empty;
         public long? DepartmentId { get; set; }
         public string DepartmentName { get; set; } = string.Empty;
         public string? DisplayOrder { get; set; }
         public long? BpmType { get; set; }
+        public List<MainTitleServiceFeatureDto> MainTitleServiceFeatureDtos { get; set; }
         public string? CreateUserID { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? ModifyDate { get; set; }
@@ -55,9 +55,9 @@ namespace Application.CQRS
 
     public class GetAllMainTitlesQueryHandler : IRequestHandler<GetAllMainTitlesQuery, List<MainTitleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllMainTitlesQueryHandler(DarooDbContext context)
+        public GetAllMainTitlesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -77,7 +77,6 @@ namespace Application.CQRS
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
-                    Amount = mt.Amount,
                     ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
@@ -101,9 +100,9 @@ namespace Application.CQRS
 
     public class GetAllMainTitlesQueryPaginationHandler : IRequestHandler<GetAllMainTitlesPaginationQuery, PagedData<MainTitleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllMainTitlesQueryPaginationHandler(DarooDbContext context)
+        public GetAllMainTitlesQueryPaginationHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -145,7 +144,6 @@ namespace Application.CQRS
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
-                    Amount = mt.Amount,
                     ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
@@ -182,15 +180,18 @@ namespace Application.CQRS
 
     public class GetMainTitleByIdQueryHandler : IRequestHandler<GetMainTitleByIdQuery, MainTitleDto?>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetMainTitleByIdQueryHandler(DarooDbContext context)
+        public GetMainTitleByIdQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
 
         public async Task<MainTitleDto?> Handle(GetMainTitleByIdQuery request, CancellationToken cancellationToken)
         {
+
+            var mainTitleServiceFeatures = await _context.MainTitleServiceFeature
+                .Where(q => q.MainTitle == request.Id).ToListAsync();
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
@@ -200,13 +201,19 @@ namespace Application.CQRS
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
-                    Amount = mt.Amount,
                     ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
                     BpmType = mt.BpmType,
+                    MainTitleServiceFeatureDtos =  mainTitleServiceFeatures.Select(s => new MainTitleServiceFeatureDto 
+                    {
+                        Id = s.Id,
+                        MainTitleId = s.MainTitle,
+                        ServiceFeature = s.ServiceFeature,
+                        IsActive = s.IsActive,
+                    }).ToList(),
                     CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
@@ -216,6 +223,9 @@ namespace Application.CQRS
                     BaGuid = mt.BaGuid
                 })
                 .FirstOrDefaultAsync(cancellationToken);
+
+            
+
         }
     }
 
@@ -223,9 +233,9 @@ namespace Application.CQRS
 
     public class GetMainTitlesByScopeQueryHandler : IRequestHandler<GetMainTitlesByScopeQuery, List<MainTitleSimpleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetMainTitlesByScopeQueryHandler(DarooDbContext context)
+        public GetMainTitlesByScopeQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -240,7 +250,6 @@ namespace Application.CQRS
                 {
                     Id = mt.Id,
                     Name = mt.Name,
-                    Amount = mt.Amount,
                     DisplayOrder = mt.DisplayOrder
                 })
                 .ToListAsync(cancellationToken);
@@ -251,9 +260,9 @@ namespace Application.CQRS
 
     public class GetMainTitlesByDepartmentQueryHandler : IRequestHandler<GetMainTitlesByDepartmentQuery, List<MainTitleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetMainTitlesByDepartmentQueryHandler(DarooDbContext context)
+        public GetMainTitlesByDepartmentQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -272,7 +281,6 @@ namespace Application.CQRS
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
-                    Amount = mt.Amount,
                     ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
@@ -294,16 +302,14 @@ namespace Application.CQRS
     public record SearchMainTitlesQuery(
         string? SearchTerm = null,
         long? ScopeId = null,
-        long? DepartmentId = null,
-        decimal? MinAmount = null,
-        decimal? MaxAmount = null
+        long? DepartmentId = null
     ) : IRequest<List<MainTitleDto>>;
 
     public class SearchMainTitlesQueryHandler : IRequestHandler<SearchMainTitlesQuery, List<MainTitleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public SearchMainTitlesQueryHandler(DarooDbContext context)
+        public SearchMainTitlesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -339,17 +345,7 @@ namespace Application.CQRS
                 query = query.Where(mt => mt.Scope.DepartmentId == request.DepartmentId.Value);
             }
 
-            // فیلتر مبلغ حداقل
-            if (request.MinAmount.HasValue)
-            {
-                query = query.Where(mt => mt.Amount >= request.MinAmount.Value);
-            }
 
-            // فیلتر مبلغ حداکثر
-            if (request.MaxAmount.HasValue)
-            {
-                query = query.Where(mt => mt.Amount <= request.MaxAmount.Value);
-            }
 
             return await query
                 .OrderBy(mt => mt.Scope.Department.Name)
@@ -361,7 +357,6 @@ namespace Application.CQRS
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
-                    Amount = mt.Amount,
                     ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,
@@ -384,9 +379,9 @@ namespace Application.CQRS
 
     public class GetMainTitlesSummaryQueryHandler : IRequestHandler<GetMainTitlesSummaryQuery, List<MainTitleSummaryDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetMainTitlesSummaryQueryHandler(DarooDbContext context)
+        public GetMainTitlesSummaryQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -395,17 +390,13 @@ namespace Application.CQRS
         {
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
-                .Where(mt => mt.IsDeleted != true && mt.Amount.HasValue)
+                .Where(mt => mt.IsDeleted != true)
                 .GroupBy(mt => new { mt.ScopesId, mt.Scope.Name })
                 .Select(g => new MainTitleSummaryDto
                 {
                     ScopeId = g.Key.ScopesId ?? 0,
                     ScopeName = g.Key.Name ?? "",
-                    TotalCount = g.Count(),
-                    TotalAmount = g.Sum(mt => mt.Amount ?? 0),
-                    AverageAmount = g.Average(mt => mt.Amount ?? 0),
-                    MinAmount = g.Min(mt => mt.Amount ?? 0),
-                    MaxAmount = g.Max(mt => mt.Amount ?? 0)
+                    TotalCount = g.Count()
                 })
                 .OrderByDescending(s => s.TotalAmount)
                 .ToListAsync(cancellationToken);
@@ -416,9 +407,9 @@ namespace Application.CQRS
 
     public class GetTopExpensiveMainTitlesQueryHandler : IRequestHandler<GetTopExpensiveMainTitlesQuery, List<MainTitleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetTopExpensiveMainTitlesQueryHandler(DarooDbContext context)
+        public GetTopExpensiveMainTitlesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -428,15 +419,13 @@ namespace Application.CQRS
             return await _context.MainTitles
                 .Include(mt => mt.Scope)
                     .ThenInclude(s => s.Department)
-                .Where(mt => mt.IsDeleted != true && mt.Amount.HasValue)
-                .OrderByDescending(mt => mt.Amount)
+                .Where(mt => mt.IsDeleted != true)
                 .Take(Math.Max(1, Math.Min(request.Top, 100)))
                 .Select(mt => new MainTitleDto
                 {
                     Id = mt.Id,
                     Name = mt.Name,
                     Description = mt.Description,
-                    Amount = mt.Amount,
                     ScopesId = mt.ScopesId,
                     ScopeName = mt.Scope.Name,
                     DepartmentId = mt.Scope.DepartmentId,

@@ -45,9 +45,9 @@ namespace Application.CQRS
 
     public class CreateProductTypeCommandHandler : IRequestHandler<CreateProductTypeCommand, long>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CreateProductTypeCommandHandler(DarooDbContext context)
+        public CreateProductTypeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -91,9 +91,9 @@ namespace Application.CQRS
 
     public class UpdateProductTypeCommandHandler : IRequestHandler<UpdateProductTypeCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateProductTypeCommandHandler(DarooDbContext context)
+        public UpdateProductTypeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -139,9 +139,9 @@ namespace Application.CQRS
 
     public class DeleteProductTypeCommandHandler : IRequestHandler<DeleteProductTypeCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteProductTypeCommandHandler(DarooDbContext context)
+        public DeleteProductTypeCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -168,9 +168,9 @@ namespace Application.CQRS
 
     public class GetAllProductTypesQueryHandler : IRequestHandler<GetAllProductTypesQuery, List<ProductTypeDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetAllProductTypesQueryHandler(DarooDbContext context)
+        public GetAllProductTypesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -202,9 +202,9 @@ namespace Application.CQRS
 
     public class GetProductTypeByIdQueryHandler : IRequestHandler<GetProductTypeByIdQuery, ProductTypeDto?>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetProductTypeByIdQueryHandler(DarooDbContext context)
+        public GetProductTypeByIdQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -235,9 +235,9 @@ namespace Application.CQRS
 
     public class GetProductTypesByMainTitleQueryHandler : IRequestHandler<GetProductTypesByMainTitleQuery, List<ProductTypeSimpleDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public GetProductTypesByMainTitleQueryHandler(DarooDbContext context)
+        public GetProductTypesByMainTitleQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -260,9 +260,9 @@ namespace Application.CQRS
 
     public class SearchProductTypesQueryHandler : IRequestHandler<SearchProductTypesQuery, List<ProductTypeDto>>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public SearchProductTypesQueryHandler(DarooDbContext context)
+        public SearchProductTypesQueryHandler(ApplicationDbContext context)
         {
             _context = context;
         }

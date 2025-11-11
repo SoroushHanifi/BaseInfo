@@ -22,29 +22,6 @@ namespace Domain.Entities.Daroo
         public string? Description { get; set; }
 
         /// <summary>
-        /// کد ویژگی (اختیاری)
-        /// </summary>
-        [MaxLength(50)]
-        public string? Code { get; set; }
-
-        /// <summary>
-        /// آیکون یا نماد ویژگی
-        /// </summary>
-        [MaxLength(100)]
-        public string? Icon { get; set; }
-
-        /// <summary>
-        /// رنگ نمایش ویژگی (برای UI)
-        /// </summary>
-        [MaxLength(20)]
-        public string? Color { get; set; }
-
-        /// <summary>
-        /// ترتیب نمایش عمومی
-        /// </summary>
-        public int DisplayOrder { get; set; } = 0;
-
-        /// <summary>
         /// وضعیت فعال/غیرفعال کلی ویژگی
         /// </summary>
         public bool IsActive { get; set; } = true;

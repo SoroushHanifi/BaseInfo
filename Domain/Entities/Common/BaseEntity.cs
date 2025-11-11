@@ -9,9 +9,9 @@ namespace Domain.Entities.Common
     public class BaseEntity 
     {
         public long Id { get; set; }
-        public string CreateUserId { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
-        public bool IsDelete { get; set; }
+        public string? CreateUserId { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? ModifyDate { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

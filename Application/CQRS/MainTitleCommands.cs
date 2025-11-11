@@ -28,7 +28,7 @@ namespace Application.CQRS
 
     public class CreateMainTitleCommandHandler : IRequestHandler<CreateMainTitleCommand, long>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IClaimHelper _claimHelper;
         private readonly ISSOClient _sSOClient;
@@ -37,7 +37,7 @@ namespace Application.CQRS
         public CreateMainTitleCommandHandler(
             IClaimHelper claimHelper,
             ISSOClient sSOClient,
-            DarooDbContext context,
+            ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             IOptions<AppSettingsOption> appSettingOption)
         {
@@ -73,9 +73,9 @@ namespace Application.CQRS
             // 👇 بررسی معتبر بودن ServiceFeatureها
             if (request.ServiceFeatures != null && request.ServiceFeatures.Any())
             {
-                var serviceFeatureIds = request.ServiceFeatures.Select(sf => sf.ServiceFeatureId).ToList();
-                var existingServiceFeaturesCount = await _context.ServiceFeatures
-                    .Where(sf => serviceFeatureIds.Contains(sf.Id) && !sf.IsDelete)
+                var serviceFeatureIds = request.ServiceFeatures.Select(sf => sf.ServiceFeature).ToList();
+                var existingServiceFeaturesCount = await _context.ServiceFeature
+                    .Where(sf => serviceFeatureIds.Contains(sf.Id) && !sf.IsDeleted)
                     .CountAsync(cancellationToken);
 
                 if (existingServiceFeaturesCount != serviceFeatureIds.Count)
@@ -95,7 +95,6 @@ namespace Application.CQRS
                 Id = _context.GetLastId<MainTitle>() + 1,
                 Name = request.Name,
                 Description = request.Description,
-                Amount = request.Amount,
                 ScopesId = request.ScopeId,
                 DisplayOrder = request.DisplayOrder,
                 BpmType = request.BpmType,
@@ -105,27 +104,35 @@ namespace Application.CQRS
             mainTitle.PrepareForCreation();
             _context.MainTitles.Add(mainTitle);
 
+            var restetste = await _context.MainTitleServiceFeature.ToListAsync();
+
             // 👇 اضافه کردن ServiceFeature‌ها
             if (request.ServiceFeatures != null && request.ServiceFeatures.Any())
             {
-                foreach (var sfInput in request.ServiceFeatures)
+                try
                 {
-                    var mainTitleServiceFeature = new MainTitleServiceFeature
+                    foreach (var sfInput in request.ServiceFeatures)
                     {
-                        Id = _context.GetLastId<MainTitleServiceFeature>() + 1,
-                        MainTitleId = (int)mainTitle.Id,
-                        ServiceFeatureId = sfInput.ServiceFeatureId,
-                        IsActive = sfInput.IsActive,
-                        DisplayOrder = sfInput.DisplayOrder,
-                        Notes = sfInput.Notes,
-                        ActivatedDate = sfInput.IsActive ? DateTime.Now : null,
-                        CreateUserId = result.Data.NationalCode,
-                        CreateDate = DateTime.Now,
-                        ModifyDate = DateTime.Now,
-                        IsDelete = false
-                    };
+                        var mainTitleServiceFeature = new MainTitleServiceFeature
+                        {
+                            Id = _context.GetLastId<MainTitleServiceFeature>() + 1,
+                            MainTitle = (int)mainTitle.Id,
+                            ServiceFeature = sfInput.ServiceFeature,
+                            IsActive = sfInput.IsActive,
+                            CreateUserId = result.Data.NationalCode,
+                            CreateDate = DateTime.Now,
+                            ModifyDate = DateTime.Now,
+                            IsDeleted = false
+                        };
 
-                    _context.MainTitleServiceFeatures.Add(mainTitleServiceFeature);
+                        _context.MainTitleServiceFeature.Add(mainTitleServiceFeature);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    var test = ex.Message;
+                    throw new Exception(ex.Message);
                 }
             }
 
@@ -145,9 +152,9 @@ namespace Application.CQRS
 
     public class UpdateMainTitleCommandHandler : IRequestHandler<UpdateMainTitleCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public UpdateMainTitleCommandHandler(DarooDbContext context)
+        public UpdateMainTitleCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -176,7 +183,6 @@ namespace Application.CQRS
 
             mainTitle.Name = request.Name;
             mainTitle.Description = request.Description;
-            mainTitle.Amount = request.Amount;
             mainTitle.DisplayOrder = request.DisplayOrder;
             mainTitle.BpmType = request.BpmType;
             mainTitle.PrepareForUpdate();
@@ -191,9 +197,9 @@ namespace Application.CQRS
 
     public class DeleteMainTitleCommandHandler : IRequestHandler<DeleteMainTitleCommand, bool>
     {
-        private readonly DarooDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteMainTitleCommandHandler(DarooDbContext context)
+        public DeleteMainTitleCommandHandler(ApplicationDbContext context)
         {
             _context = context;
         }

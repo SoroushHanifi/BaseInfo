@@ -6,9 +6,9 @@ namespace Infrastructure
     /// <summary>
     /// DbContext updated to work with Bizagi generated tables
     /// </summary>
-    public class DarooDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public DarooDbContext(DbContextOptions<DarooDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         #region DbSets - Bizagi Tables
         public DbSet<Department> Departments { get; set; }
@@ -17,7 +17,7 @@ namespace Infrastructure
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<ServiceFeature> ServiceFeature { get; set; }
         public DbSet<MainTitleServiceFeature> MainTitleServiceFeature { get; set; }
-        public DbSet<BpmType> BpmTypes { get; set; } 
+        public DbSet<BpmType> BpmTypes { get; set; }
         public DbSet<ProduceType> ProduceTypes { get; set; }
         public DbSet<Approval> Approvals { get; set; }
 
@@ -192,26 +192,27 @@ namespace Infrastructure
 
             modelBuilder.Entity<MainTitleServiceFeature>(entity =>
             {
+                entity.ToTable("MainTitleServiceFeature"); // بهتره صریح بگی
+
                 entity.Property(e => e.Id).HasColumnName("idMainTitleServiceFeature");
+
+                // اینا FK هستن، نه navigation
                 entity.Property(e => e.ServiceFeature).HasColumnName("ServiceFeature");
                 entity.Property(e => e.MainTitle).HasColumnName("MainTitle");
 
-                // Relationship with MainTitle
+                // رابطه با MainTitle
                 entity.HasOne(a => a.MainTitleVirtual)
-                      .WithMany() 
-                      .HasForeignKey(a => a.MainTitle)
+                      .WithMany()
+                      .HasForeignKey(a => a.MainTitle)  // ← درست: به پراپرتی long اشاره می‌کنه
                       .HasConstraintName("FK_MainTitleServiceFeature_MainTitle")
                       .OnDelete(DeleteBehavior.Restrict);
 
-
-                // Relationship with ServiceFeature
+                // رابطه با ServiceFeature
                 entity.HasOne(a => a.ServiceFeatureVirtual)
-                      .WithMany() 
-                      .HasForeignKey(a => a.ServiceFeature)
+                      .WithMany()
+                      .HasForeignKey(a => a.ServiceFeature)  // ← درست: چون ServiceFeature یک long هست
                       .HasConstraintName("FK_MainTitleServiceFeature_ServiceFeature")
                       .OnDelete(DeleteBehavior.Restrict);
-
-
             });
 
             modelBuilder.Entity<Approval>(entity =>
@@ -225,7 +226,7 @@ namespace Infrastructure
 
                 entity.Property(e => e.FinalEnt)
                       .HasColumnName("finalEnt")
-                      .HasDefaultValue(10030); 
+                      .HasDefaultValue(10030);
 
                 entity.Property(e => e.BaCreatedTime)
                       .HasColumnName("baCreatedTime");
@@ -269,7 +270,7 @@ namespace Infrastructure
                 entity.HasIndex(a => a.MainTitleId);
                 entity.HasIndex(a => new { a.MainTitleId, a.TariffStartDate });
             });
-           
+
 
         }
 
