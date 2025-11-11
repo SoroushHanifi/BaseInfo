@@ -35,6 +35,9 @@ namespace Domain.Entities.Daroo
         [Column("BpmType")]
         public long? BpmType { get; set; }
 
+        [Column("ProduceType")]
+        public long? ProduceType { get; set; }
+
         // Navigation Properties
         [ForeignKey("ScopesId")]
         public virtual Scope Scope { get; set; } = null!;

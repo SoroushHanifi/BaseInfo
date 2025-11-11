@@ -39,7 +39,7 @@ namespace BaseInfo.Extensions
 
         public static void AddDbContextInternal(this IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(option => { option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")); });
+            services.AddDbContext<ApplicationDbContext>(option => { option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).LogTo(Console.WriteLine, LogLevel.Information).EnableSensitiveDataLogging(); });
         }
 
 

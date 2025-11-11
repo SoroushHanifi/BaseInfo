@@ -99,6 +99,8 @@ namespace Infrastructure
                 entity.Property(e => e.ModifyDate).HasColumnName("ModifyDate");
                 entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
                 entity.Property(e => e.BpmType).HasColumnName("BpmType");
+                entity.Property(e => e.ProduceType).HasColumnName("ProduceType");
+
 
                 // Configure default for baCreatedTime
                 entity.Property(e => e.BaCreatedTime)

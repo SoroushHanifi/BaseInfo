@@ -19,10 +19,10 @@ namespace Application.CQRS
     public record CreateMainTitleCommand(
      string Name,
      string? Description,
-     decimal Amount,
      long ScopeId,
      string? DisplayOrder = "0",
      long? BpmType = null,
+     long? ProduceType = null,
      List<MainTitleServiceFeatureInput>? ServiceFeatures = null  // 👈 اضافه شد
  ) : IRequest<long>;
 
@@ -66,9 +66,6 @@ namespace Application.CQRS
             if (nameExists)
                 throw new AppException("نام عنوان اصلی در این حوزه تکراری است");
 
-            // بررسی مبلغ
-            if (request.Amount < 0)
-                throw new AppException("مبلغ نمی‌تواند منفی باشد");
 
             // 👇 بررسی معتبر بودن ServiceFeatureها
             if (request.ServiceFeatures != null && request.ServiceFeatures.Any())
@@ -96,6 +93,7 @@ namespace Application.CQRS
                 Name = request.Name,
                 Description = request.Description,
                 ScopesId = request.ScopeId,
+                ProduceType = request.ProduceType,
                 DisplayOrder = request.DisplayOrder,
                 BpmType = request.BpmType,
                 CreateUserID = result.Data.NationalCode

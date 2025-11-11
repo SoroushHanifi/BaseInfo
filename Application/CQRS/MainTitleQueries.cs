@@ -17,6 +17,7 @@ namespace Application.CQRS
         public string DepartmentName { get; set; } = string.Empty;
         public string? DisplayOrder { get; set; }
         public long? BpmType { get; set; }
+        public long? ProduceType { get; set; }
         public List<MainTitleServiceFeatureDto> MainTitleServiceFeatureDtos { get; set; }
         public string? CreateUserID { get; set; }
         public DateTime? CreateDate { get; set; }
@@ -87,6 +88,7 @@ namespace Application.CQRS
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
                     IsDeleted = mt.IsDeleted,
+                    ProduceType = mt.ProduceType,
                     FinalEnt = mt.FinalEnt,
                     BaCreatedTime = mt.BaCreatedTime,
                     BaGuid = mt.BaGuid
@@ -150,6 +152,7 @@ namespace Application.CQRS
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
                     BpmType = mt.BpmType,
+                    ProduceType = mt.ProduceType,   
                     CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
@@ -207,6 +210,7 @@ namespace Application.CQRS
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
                     BpmType = mt.BpmType,
+                    ProduceType = mt.ProduceType,   
                     MainTitleServiceFeatureDtos =  mainTitleServiceFeatures.Select(s => new MainTitleServiceFeatureDto 
                     {
                         Id = s.Id,
@@ -287,6 +291,7 @@ namespace Application.CQRS
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
                     BpmType = mt.BpmType,
+                    ProduceType = mt.ProduceType,   
                     CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
@@ -363,6 +368,7 @@ namespace Application.CQRS
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
                     BpmType = mt.BpmType,
+                    ProduceType = mt.ProduceType,   
                     CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
@@ -432,6 +438,7 @@ namespace Application.CQRS
                     DepartmentName = mt.Scope.Department.Name,
                     DisplayOrder = mt.DisplayOrder,
                     BpmType = mt.BpmType,
+                    ProduceType = mt.ProduceType,
                     CreateUserID = mt.CreateUserID,
                     CreateDate = mt.CreateDate,
                     ModifyDate = mt.ModifyDate,
