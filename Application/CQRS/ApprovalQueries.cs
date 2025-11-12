@@ -248,12 +248,6 @@ namespace Application.CQRS
                 .Include(a => a.MainTitle)
                 .Where(a => a.MainTitleId == request.MainTitleId);
 
-            if (request.OnlyCurrent)
-                query = query.Where(a => a.IsCurrentlyActive);
-
-            if (request.OnlyLatest)
-                query = query.Where(a => a.IsLatestTariff);
-
             return await query
                 .OrderByDescending(a => a.TariffStartDate)
                 .Select(a => new ApprovalDto
