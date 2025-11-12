@@ -290,10 +290,10 @@ namespace BaseInfo.Controllers
                 var command = new CreateMainTitleCommand(
                     request.Name,
                     request.Description,
-                    request.Amount,
                     request.ScopeId,
                     request.DisplayOrder,
                     request.BpmType,
+                    request.ProduceType,
                     request.ServiceFeatures  // 👈 اضافه شد
                 );
 
@@ -438,6 +438,8 @@ namespace BaseInfo.Controllers
         public string? DisplayOrder { get; set; } = "0";
 
         public long? BpmType { get; set; }
+        public long? ProduceType { get; set; }
+
 
         /// <summary>
         /// لیست ویژگی‌های خدمات مرتبط با این عنوان اصلی
