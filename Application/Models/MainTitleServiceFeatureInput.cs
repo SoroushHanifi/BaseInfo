@@ -9,6 +9,5 @@ namespace Application.Models
     public class MainTitleServiceFeatureInput
     {
         public long ServiceFeature { get; set; }
-        public bool IsActive { get; set; }
     }
 }

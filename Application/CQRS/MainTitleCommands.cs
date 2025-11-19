@@ -109,14 +109,15 @@ namespace Application.CQRS
             {
                 try
                 {
+                    int counter = 1;
                     foreach (var sfInput in request.ServiceFeatures)
                     {
                         var mainTitleServiceFeature = new MainTitleServiceFeature
                         {
-                            Id = _context.GetLastId<MainTitleServiceFeature>() + 1,
+                            Id = _context.GetLastId<MainTitleServiceFeature>() + counter,
                             MainTitle = (int)mainTitle.Id,
                             ServiceFeature = sfInput.ServiceFeature,
-                            IsActive = sfInput.IsActive,
+                            IsActive = true,
                             CreateUserId = result.Data.NationalCode,
                             CreateDate = DateTime.Now,
                             ModifyDate = DateTime.Now,
@@ -124,6 +125,7 @@ namespace Application.CQRS
                         };
 
                         _context.MainTitleServiceFeature.Add(mainTitleServiceFeature);
+                        counter++;
                     }
                 }
                 catch (Exception ex)

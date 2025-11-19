@@ -294,7 +294,10 @@ namespace BaseInfo.Controllers
                     request.DisplayOrder,
                     request.BpmType,
                     request.ProduceType,
-                    request.ServiceFeatures  // 👈 اضافه شد
+                    request.ServiceFeatures.Select(l => new MainTitleServiceFeatureInput 
+                    {
+                        ServiceFeature = l
+                    }).ToList()
                 );
 
                 var mainTitleId = await _mediator.Send(command);
@@ -308,7 +311,7 @@ namespace BaseInfo.Controllers
                         IsSuccess = true,
                         Message = "عنوان اصلی با موفقیت ایجاد شد",
                         Data = mainTitleId
-                    });
+                    }); 
             }
             catch (AppException ex)
             {
@@ -444,7 +447,7 @@ namespace BaseInfo.Controllers
         /// <summary>
         /// لیست ویژگی‌های خدمات مرتبط با این عنوان اصلی
         /// </summary>
-        public List<MainTitleServiceFeatureInput>? ServiceFeatures { get; set; }
+        public List<long>? ServiceFeatures { get; set; }
     }
     public class UpdateMainTitleRequest
     {
