@@ -43,6 +43,8 @@ namespace Domain.Entities.Daroo
         public virtual Scope Scope { get; set; } = null!;
 
         public virtual ICollection<ProductType> ProductTypes { get; set; } = new List<ProductType>();
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
 
         public override void PrepareForCreation()
         {

@@ -10,7 +10,9 @@ namespace Application.Refits
 {
     public interface ISSOClient
     {
-        
+        [Post("/api/v1/Authenticate")]
+        Task<HttpResponseMessage> Authenticate([Body] GetUserSystemTokenModel body);
+
 
         [Get("/api/v1/User/GetCurrentUser")]
         Task<SSoResultApi<CurrentUserModel>> GetCurrentUser([Header("Cookie")] string token);

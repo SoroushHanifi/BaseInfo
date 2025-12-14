@@ -401,7 +401,7 @@ namespace BaseInfo.Controllers
         [Required(ErrorMessage = "شناسه عنوان اصلی الزامی است")]
         [Range(1, long.MaxValue, ErrorMessage = "شناسه عنوان اصلی باید عددی مثبت باشد")]
         public long MainTitleId { get; set; }
-        public decimal Amount { get; set; }
+        public long Amount { get; set; }
 
         /// <summary>
         /// وضعیت فعال/غیرفعال

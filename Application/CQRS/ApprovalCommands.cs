@@ -22,7 +22,7 @@ namespace Application.CQRS
     public record CreateApprovalCommand(
         DateTime TariffStartDate,
         long MainTitleId,
-        decimal Amount,
+        long Amount,
         bool IsActive = true
     ) : IRequest<CreateApprovalResult>;
 
@@ -40,19 +40,22 @@ namespace Application.CQRS
         private readonly IClaimHelper _claimHelper;
         private readonly ISSOClient _sSOClient;
         private readonly AppSettingsOption _appSettingsOption;
+        private readonly IMediator _mediator;
 
         public CreateApprovalCommandHandler(
             IClaimHelper claimHelper,
             ISSOClient sSOClient,
             ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
-            IOptions<AppSettingsOption> appSettingOption)
+            IOptions<AppSettingsOption> appSettingOption,
+            IMediator mediator)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _claimHelper = claimHelper;
             _sSOClient = sSOClient;
             _appSettingsOption = appSettingOption.Value;
+            _mediator = mediator;
         }
 
         public async Task<CreateApprovalResult> Handle(CreateApprovalCommand request, CancellationToken cancellationToken)
@@ -122,6 +125,17 @@ namespace Application.CQRS
 
             result.ApprovalId = approval.Id;
 
+            try
+            {
+                await _mediator.Send(new CreateCasePaymentDifferenceCommand(approval.MainTitleId, approval.TariffStartDate ?? DateTime.Now, approval.TariffEndDate ?? DateTime.Now, approval.Amount));
+
+            }
+            catch (Exception ex)
+            {
+                var test = ex.InnerException.Message;
+                throw ex;
+            }
+
             if (result.UpdatedApprovalIds.Any())
             {
                 result.Message = $"تعرفه جدید ایجاد شد و {result.UpdatedApprovalIds.Count} تعرفه قبلی به‌روزرسانی شد";
@@ -179,7 +193,7 @@ namespace Application.CQRS
             _context.Approvals.Remove(approval);
 
             // اگر نیاز به تنظیم مجدد تعرفه قبلی است
-            if (request.AdjustPreviousTariff && mainTitleId.HasValue && tariffStartDate.HasValue)
+            if (request.AdjustPreviousTariff && tariffStartDate.HasValue)
             {
                 // پیدا کردن آخرین تعرفه‌ای که قبل از تعرفه حذف شده شروع شده
                 var previousApproval = await _context.Approvals

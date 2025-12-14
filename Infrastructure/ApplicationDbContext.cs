@@ -20,12 +20,43 @@ namespace Infrastructure
         public DbSet<BpmType> BpmTypes { get; set; }
         public DbSet<ProduceType> ProduceTypes { get; set; }
         public DbSet<Approval> Approvals { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            // Configure Payments
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.ToTable("Payments");
+                entity.HasKey(e => e.Id);
+
+                // Configure properties
+                entity.Property(e => e.Id).HasColumnName("idPayments");
+                entity.Property(e => e.MainTitleId).HasColumnName("MainTitleId");
+                entity.Property(e => e.NationalCode).HasColumnName("NationalCode");
+                entity.Property(e => e.PaymentAmount).HasColumnName("PaymentAmount");
+                entity.Property(e => e.PaymentResult).HasColumnName("PaymentResult");
+                entity.Property(e => e.PaymentDate).HasColumnName("PaymentDate");
+                entity.Property(e => e.Founder).HasColumnName("Founder");
+
+
+                // Configure relationship with MainTitle
+                entity.HasOne(e => e.MainTitle)
+                    .WithMany(e => e.Payments)
+                    .HasForeignKey(e => e.MainTitleId)
+                    .HasConstraintName("FK_MainTitle_Payments")
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Configure default for baCreatedTime
+                entity.Property(e => e.BaCreatedTime)
+                      .HasDefaultValueSql("CONVERT([bigint],datediff(second,'1970-01-01',getutcdate()))*(1000)");
+
+            });
 
             // Configure Department
             modelBuilder.Entity<Department>(entity =>

@@ -15,6 +15,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using Refit;
+using Newtonsoft.Json;
 
 
 namespace BaseInfo.Extensions
@@ -125,8 +126,23 @@ namespace BaseInfo.Extensions
         }
         public static void AddRefitInternal(this IServiceCollection services)
         {
+            var refitSettings = new RefitSettings
+            {
+                ContentSerializer = new NewtonsoftJsonContentSerializer(
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                })
+            };
+
             services.AddRefitClient<ISSOClient>()
                 .ConfigureHttpClient(p => p.BaseAddress = new Uri(OptionsData.Urls.SSO));
+
+            services.AddRefitClient<IPaymentOrganization>(refitSettings)
+               .ConfigureHttpClient(c =>
+               {
+                   c.BaseAddress = new Uri(OptionsData.Urls.PayOrgApi);
+               });
 
         }
 

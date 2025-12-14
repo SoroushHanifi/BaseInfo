@@ -9,12 +9,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BaseInfo.Controllers
 {
-    // ===== ResultApi Classes =====
-
-
-    // ===== SCOPES CONTROLLER =====
-
-
     // ===== MAIN TITLES CONTROLLER =====
     [ApiController]
     [Route("api/[controller]")]

@@ -28,6 +28,7 @@ namespace Application.OptionPatternModel
         public string Bizagi { get; set; }
         public string Organization { get; set; }
         public string External { get; set; }
+        public string PayOrgApi { get; set; }
         public string PaymentCallBackUrl { get; set; }
     }
 

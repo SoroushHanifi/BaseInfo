@@ -49,12 +49,12 @@ namespace Domain.Entities.Daroo
         /// <summary>
         /// شناسه عنوان اصلی مرتبط
         /// </summary>
-        public long? MainTitleId { get; set; }
+        public long MainTitleId { get; set; }
 
         /// <summary>
         /// مبلغ تعرفه
         /// </summary>
-        public decimal? Amount { get; set; }
+        public long Amount { get; set; }
 
         /// <summary>
         /// وضعیت فعال/غیرفعال بودن تاییدیه
